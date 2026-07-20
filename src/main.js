@@ -3,6 +3,7 @@ import { showExamHistory } from "./pages/examHistory.js";
 import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
+  sendPasswordResetEmail,
   signOut,
   onAuthStateChanged
 } from "firebase/auth";
@@ -112,6 +113,7 @@ function showHome() {
   document
     .querySelector("#registerPageButton")
     .addEventListener("click", showRegister);
+    
 }
 
 function showRegister() {
@@ -190,6 +192,7 @@ function showRegister() {
           </button>
         </form>
 
+    
         <p id="message" class="message"></p>
 
         <p class="switch-text">
@@ -334,6 +337,7 @@ function showLogin() {
         <button
           id="loginBackButton"
           class="back-button"
+          type="button"
         >
           ← Home
         </button>
@@ -379,6 +383,14 @@ function showLogin() {
           </button>
         </form>
 
+        <button
+          id="forgotPasswordButton"
+          class="text-button forgot-password-button"
+          type="button"
+        >
+          Password dimenticata?
+        </button>
+
         <p id="message" class="message"></p>
 
         <p class="switch-text">
@@ -387,6 +399,7 @@ function showLogin() {
           <button
             id="goToRegisterButton"
             class="text-button"
+            type="button"
           >
             Registrati
           </button>
@@ -397,7 +410,10 @@ function showLogin() {
 
   document
     .querySelector("#loginBackButton")
-    .addEventListener("click", showHome);
+    .addEventListener(
+      "click",
+      showHome
+    );
 
   document
     .querySelector("#goToRegisterButton")
@@ -411,6 +427,13 @@ function showLogin() {
     .addEventListener(
       "submit",
       loginStudent
+    );
+
+  document
+    .querySelector("#forgotPasswordButton")
+    .addEventListener(
+      "click",
+      resetStudentPassword
     );
 }
 
@@ -434,8 +457,7 @@ async function loginStudent(event) {
     );
 
   submitButton.disabled = true;
-  submitButton.textContent =
-    "Accesso...";
+  submitButton.textContent = "Accesso...";
 
   try {
     await signInWithEmailAndPassword(
@@ -444,15 +466,67 @@ async function loginStudent(event) {
       password
     );
   } catch (error) {
-    console.error("Login error:", error);
+    console.error(
+      "Login error:",
+      error
+    );
 
     showMessage(
       "Email o password non corretti."
     );
 
     submitButton.disabled = false;
-    submitButton.textContent =
-      "Accedi";
+    submitButton.textContent = "Accedi";
+  }
+}
+
+async function resetStudentPassword() {
+  const emailInput =
+    document.querySelector("#loginEmail");
+
+  const email =
+    emailInput.value.trim();
+
+  if (!email) {
+    showMessage(
+      "Inserisci prima il tuo indirizzo email."
+    );
+
+    emailInput.focus();
+    return;
+  }
+
+  try {
+    await sendPasswordResetEmail(
+      auth,
+      email
+    );
+
+    showMessage(
+      "Email di reimpostazione inviata. Controlla anche la cartella spam.",
+      "success"
+    );
+  } catch (error) {
+    console.error(
+      "Password reset error:",
+      error
+    );
+
+    if (error.code === "auth/invalid-email") {
+      showMessage(
+        "Inserisci un indirizzo email valido."
+      );
+    } else if (
+      error.code === "auth/too-many-requests"
+    ) {
+      showMessage(
+        "Hai effettuato troppe richieste. Riprova più tardi."
+      );
+    } else {
+      showMessage(
+        "Non è stato possibile inviare l'email di reimpostazione."
+      );
+    }
   }
 }
 

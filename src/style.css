@@ -2760,4 +2760,8 @@ h2 {
     gap: 5px;
     text-align: center;
   }
+}.forgot-password-button {
+  display: block;
+  margin: 14px auto 0;
+  padding: 4px 0;
 }
