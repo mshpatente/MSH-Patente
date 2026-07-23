@@ -1,0 +1,378 @@
+/* =========================================
+   MSH PATENTE — VISUAL POLISH
+   শুধু রং, border ও shadow পরিবর্তন করবে
+   ========================================= */
+
+:root {
+  --polish-page: #f3f6fb;
+  --polish-card: #ffffff;
+  --polish-soft: #f8fafc;
+
+  --polish-border: #dce5f0;
+  --polish-border-strong: #cbd7e6;
+
+  --polish-text: #14213d;
+  --polish-muted: #607087;
+
+  --polish-blue: #3f69d7;
+  --polish-blue-dark: #3154b4;
+  --polish-blue-soft: #eef3ff;
+
+  --polish-green: #359d68;
+  --polish-green-soft: #edf9f2;
+
+  --polish-yellow: #d59a35;
+  --polish-yellow-soft: #fff8e8;
+
+  --polish-red: #d75d65;
+  --polish-red-soft: #fff1f2;
+
+  --polish-purple: #896bd0;
+  --polish-purple-soft: #f5f1ff;
+
+  --polish-shadow:
+    0 12px 32px rgba(38, 55, 86, 0.08);
+}
+
+/* Page background */
+
+body,
+.page,
+.ministerial-exam-page {
+  color: var(--polish-text);
+  background:
+    radial-gradient(
+      circle at top left,
+      rgba(63, 105, 215, 0.06),
+      transparent 35%
+    ),
+    var(--polish-page);
+}
+
+/* Main white containers */
+
+.card,
+.wide-card,
+.ministerial-exam-shell,
+.admin-theory-shell,
+.admin-theory-sidebar,
+.admin-theory-editor {
+  border-color: var(--polish-border);
+  background: var(--polish-card);
+  box-shadow: var(--polish-shadow);
+}
+
+/* Text */
+
+h1,
+h2,
+h3 {
+  color: var(--polish-text);
+}
+
+.subtitle,
+.admin-editor-subtitle,
+.admin-document-id,
+.admin-form-section-title p,
+.admin-form-field small,
+.ministerial-real-ministry,
+.ministerial-real-subtitle {
+  color: var(--polish-muted);
+}
+
+.eyebrow {
+  color: var(--polish-blue);
+}
+
+/* Main buttons */
+
+.btn-primary,
+.open-theory-lesson-button,
+.ministerial-submit-button {
+  border-color: var(--polish-blue);
+  background:
+    linear-gradient(
+      180deg,
+      #4d78e1 0%,
+      var(--polish-blue) 100%
+    );
+  box-shadow:
+    0 7px 17px rgba(63, 105, 215, 0.2);
+}
+
+.btn-primary:hover,
+.open-theory-lesson-button:hover,
+.ministerial-submit-button:hover {
+  background:
+    linear-gradient(
+      180deg,
+      #426ed6 0%,
+      var(--polish-blue-dark) 100%
+    );
+}
+
+/* Secondary buttons */
+
+.btn-secondary,
+.back-button,
+.ministerial-navigation-button,
+.ministerial-flag-button {
+  border-color: var(--polish-border-strong);
+  background: var(--polish-soft);
+  color: #34445f;
+}
+
+/* Dashboard study cards */
+
+.dashboard-study-card {
+  box-shadow:
+    0 6px 18px rgba(38, 55, 86, 0.06);
+}
+
+.dashboard-study-card:nth-child(1) {
+  border-color: #abc2ec;
+  background: #f2f6ff;
+}
+
+.dashboard-study-card:nth-child(2) {
+  border-color: #cec0ee;
+  background: #f7f3ff;
+}
+
+.dashboard-study-card:nth-child(3) {
+  border-color: #ead39f;
+  background: #fff9ec;
+}
+
+.dashboard-study-card:nth-child(4) {
+  border-color: #a9ddbd;
+  background: #f0faf4;
+}
+
+.dashboard-study-card:nth-child(5) {
+  border-color: #ebc7a9;
+  background: #fff5ed;
+}
+
+.dashboard-study-card:nth-child(6) {
+  border-color: #ced9e6;
+  background: #f7f9fc;
+}
+
+/* Theory topic cards */
+
+.theory-topic-card {
+  border-color: var(--polish-border);
+  box-shadow:
+    0 7px 20px rgba(38, 55, 86, 0.06);
+}
+
+.theory-topic-card:nth-child(1) {
+  border-top-color: #5578d2;
+}
+
+.theory-topic-card:nth-child(2) {
+  border-top-color: #48a574;
+}
+
+.theory-topic-card:nth-child(3) {
+  border-top-color: #d9824f;
+}
+
+.theory-topic-card:nth-child(4) {
+  border-top-color: #8d6acc;
+}
+
+.theory-topic-card:nth-child(5) {
+  border-top-color: #d96068;
+}
+
+/* Topic buttons: কম saturated */
+
+.theory-topic-card .btn {
+  filter: saturate(0.8);
+}
+
+/* Ministerial exam */
+
+.ministerial-real-header {
+  border-bottom-color: var(--polish-blue);
+  background:
+    linear-gradient(
+      135deg,
+      #ffffff 0%,
+      #f6f8fc 100%
+    );
+}
+
+.ministerial-question-group,
+.ministerial-real-type,
+.ministerial-status-strip,
+.ministerial-question-titlebar,
+.ministerial-bottom-bar {
+  border-color: var(--polish-border);
+  background: var(--polish-soft);
+}
+
+.ministerial-question-group-current {
+  border-color: #a9bdec;
+  background: var(--polish-blue-soft);
+}
+
+.exam-question-current {
+  border-color: var(--polish-blue);
+  background: var(--polish-blue);
+  box-shadow:
+    0 5px 13px rgba(63, 105, 215, 0.22);
+}
+
+.exam-question-answered:not(.exam-question-current) {
+  border-color: #8dcbaa;
+  background: var(--polish-green-soft);
+  color: #287b51;
+}
+
+.ministerial-image-panel,
+.ministerial-question-area {
+  border-color: var(--polish-border);
+  box-shadow:
+    0 6px 18px rgba(38, 55, 86, 0.06);
+}
+
+.ministerial-image-placeholder {
+  background:
+    linear-gradient(
+      145deg,
+      #f8fafc,
+      #f1f5f9
+    );
+}
+
+.ministerial-answer-button {
+  border-color: var(--polish-border-strong);
+  background: #ffffff;
+}
+
+.ministerial-answer-button:hover {
+  border-color: #9db3e2;
+  background: #f7f9ff;
+}
+
+.ministerial-answer-selected {
+  border-color: var(--polish-blue);
+  background: var(--polish-blue-soft);
+  box-shadow:
+    0 0 0 3px rgba(63, 105, 215, 0.1);
+}
+
+.ministerial-bottom-timer {
+  border-color: #bbcae9;
+  background: #f2f6ff;
+}
+
+.ministerial-bottom-timer strong {
+  color: var(--polish-blue-dark);
+}
+
+/* Admin theory */
+
+.admin-summary-grid article {
+  border-color: var(--polish-border);
+  background:
+    linear-gradient(
+      145deg,
+      #ffffff,
+      #f8fafc
+    );
+  box-shadow:
+    0 6px 18px rgba(38, 55, 86, 0.06);
+}
+
+.admin-sidebar-toolbar,
+.admin-form-section {
+  border-color: var(--polish-border);
+  background: #fafbfd;
+}
+
+.admin-search-field,
+.admin-sidebar-filters select,
+.admin-form-field input,
+.admin-form-field select,
+.admin-form-field textarea {
+  border-color: var(--polish-border-strong);
+  background: #ffffff;
+}
+
+.admin-lesson-list-item {
+  border-color: var(--polish-border);
+}
+
+.admin-lesson-selected {
+  border-color: #91a9df;
+  background: #f4f7ff;
+  box-shadow:
+    0 0 0 2px rgba(63, 105, 215, 0.08);
+}
+
+.admin-form-section-title > span {
+  background: var(--polish-blue);
+}
+
+.admin-status-published {
+  background: var(--polish-green-soft);
+  color: #267a4e;
+}
+
+.admin-status-draft {
+  background: var(--polish-yellow-soft);
+  color: #976a1c;
+}
+
+.admin-status-archived {
+  background: #eef1f5;
+  color: #566579;
+}
+
+.admin-save-panel {
+  border-color: #bfd0ef;
+  background: #f2f6ff;
+}
+
+/* Profile */
+
+.profile-level-card,
+.profile-progress-card {
+  border-color: #bfd0ef;
+  background:
+    linear-gradient(
+      145deg,
+      #f8faff,
+      #eff4ff
+    );
+}
+
+/* Form focus */
+
+input:focus,
+select:focus,
+textarea:focus {
+  border-color: var(--polish-blue) !important;
+  outline:
+    3px solid rgba(63, 105, 215, 0.1) !important;
+}
+
+/* Mobile */
+
+@media (max-width: 760px) {
+  body,
+  .page,
+  .ministerial-exam-page {
+    background: var(--polish-page);
+  }
+
+  .card,
+  .wide-card,
+  .ministerial-exam-shell {
+    box-shadow: none;
+  }
+}

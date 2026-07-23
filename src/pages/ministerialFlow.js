@@ -37,6 +37,44 @@ export function openMinisterialFlow(
     actions
   );
 }
+const EXAM_STORAGE_KEY =
+  "mshPatenteMinisterialExamDraft";
+
+function getSavedMinisterialDraft() {
+  try {
+    const rawDraft =
+      localStorage.getItem(
+        EXAM_STORAGE_KEY
+      );
+
+    if (!rawDraft) {
+      return null;
+    }
+
+    const draft =
+      JSON.parse(rawDraft);
+
+    if (
+      !draft ||
+      typeof draft !== "object"
+    ) {
+      return null;
+    }
+
+    return draft;
+  } catch (error) {
+    console.warn(
+      "Invalid ministerial draft:",
+      error
+    );
+
+    localStorage.removeItem(
+      EXAM_STORAGE_KEY
+    );
+
+    return null;
+  }
+}
 
 function showMinisterialStartPage(
   app,
@@ -44,10 +82,16 @@ function showMinisterialStartPage(
   actions
 ) {
   const config =
-    ministerialExamConfig;
+  ministerialExamConfig;
 
-  const availableQuestions =
-    questions.length;
+const savedDraft =
+  getSavedMinisterialDraft();
+
+const hasSavedDraft =
+  Boolean(savedDraft);
+
+const availableQuestions =
+  questions.length;
 
   const enoughQuestions =
     availableQuestions >=
@@ -133,6 +177,72 @@ function showMinisterialStartPage(
             </strong>
           </article>
         </div>
+${
+  hasSavedDraft
+    ? `
+      <section class="ministerial-resume-card">
+        <div class="ministerial-resume-icon">
+          ↻
+        </div>
+
+        <div class="ministerial-resume-content">
+          <p class="eyebrow">
+            SIMULAZIONE IN CORSO
+          </p>
+
+          <h2>
+            Hai una simulazione non completata
+          </h2>
+
+          <p>
+            Puoi continuare dal punto in cui
+            avevi interrotto.
+          </p>
+
+          <div class="ministerial-resume-stats">
+            <span>
+              Domanda:
+              <strong>
+                ${
+                  Number(
+                    savedDraft.currentIndex
+                  ) + 1
+                }
+              </strong>
+            </span>
+
+            <span>
+              Tempo rimasto:
+              <strong>
+                ${formatDuration(
+                  savedDraft.remainingSeconds
+                )}
+              </strong>
+            </span>
+          </div>
+
+          <div class="ministerial-resume-actions">
+            <button
+              id="resumeMinisterialExamButton"
+              class="btn btn-primary"
+              type="button"
+            >
+              Continua simulazione
+            </button>
+
+            <button
+              id="newMinisterialExamButton"
+              class="btn btn-secondary"
+              type="button"
+            >
+              Nuova simulazione
+            </button>
+          </div>
+        </div>
+      </section>
+    `
+    : ""
+}
 
         <section class="exam-instructions">
           <p class="eyebrow">
@@ -258,18 +368,169 @@ function showMinisterialStartPage(
       "#startMinisterialExamButton"
     );
 
-  if (startButton) {
-    startButton.addEventListener(
-      "click",
-      () => {
-        startMinisterialExam(
+ if (startButton) {
+  startButton.addEventListener(
+    "click",
+    () => {
+      startMinisterialExam(
+        app,
+        user,
+        actions
+      );
+    }
+  );
+}
+
+const resumeButton =
+  document.querySelector(
+    "#resumeMinisterialExamButton"
+  );
+
+const newExamButton =
+  document.querySelector(
+    "#newMinisterialExamButton"
+  );
+
+if (resumeButton) {
+  resumeButton.addEventListener(
+    "click",
+    () => {
+      resumeMinisterialExam(
+        app,
+        user,
+        actions,
+        savedDraft
+      );
+    }
+  );
+}
+
+if (newExamButton) {
+  newExamButton.addEventListener(
+    "click",
+    () => {
+      localStorage.removeItem(
+        EXAM_STORAGE_KEY
+      );
+
+      showMinisterialStartPage(
+        app,
+        user,
+        actions
+      );
+    }
+  );
+}
+}
+
+
+function getQuestionsFromDraft(
+  savedDraft
+) {
+  if (
+    !savedDraft ||
+    !Array.isArray(
+      savedDraft.questionIds
+    )
+  ) {
+    return null;
+  }
+
+  const questionsById =
+    new Map(
+      questions.map(
+        (question) => [
+          question.id,
+          question
+        ]
+      )
+    );
+
+  const restoredQuestions =
+    savedDraft.questionIds.map(
+      (questionId) =>
+        questionsById.get(
+          questionId
+        )
+    );
+
+  const hasMissingQuestion =
+    restoredQuestions.some(
+      (question) => !question
+    );
+
+  if (
+    hasMissingQuestion ||
+    restoredQuestions.length === 0
+  ) {
+    return null;
+  }
+
+  return restoredQuestions;
+}
+
+function resumeMinisterialExam(
+  app,
+  user,
+  actions,
+  savedDraft
+) {
+  const config =
+    ministerialExamConfig;
+
+  const restoredQuestions =
+    getQuestionsFromDraft(
+      savedDraft
+    );
+
+  if (!restoredQuestions) {
+    localStorage.removeItem(
+      EXAM_STORAGE_KEY
+    );
+
+    showMinisterialStartPage(
+      app,
+      user,
+      actions
+    );
+
+    return;
+  }
+
+  showMinisterialExam(
+    app,
+    {
+      questions:
+        restoredQuestions,
+
+      durationMinutes:
+        config.durationMinutes,
+
+      maximumErrors:
+        config.maximumErrors,
+
+      initialState:
+        savedDraft,
+
+      onExit: () => {
+        showMinisterialStartPage(
           app,
           user,
           actions
         );
+      },
+
+      onFinish: (result) => {
+        saveMinisterialResult(
+          app,
+          user,
+          result,
+          restoredQuestions,
+          actions
+        );
       }
-    );
-  }
+    }
+  );
 }
 
 function startMinisterialExam(

@@ -1,3 +1,4 @@
+
 export function showMinisterialExam(
   app,
   options
@@ -6,19 +7,10 @@ export function showMinisterialExam(
     questions,
     durationMinutes,
     maximumErrors,
+    initialState = null,
     onFinish,
     onExit
   } = options;
-
-  let currentIndex = 0;
-
-  let remainingSeconds =
-    durationMinutes * 60;
-
-  let timerId = null;
-  let examFinished = false;
-
-  const selectedAnswers = {};
 
   if (!Array.isArray(questions)) {
     showExamError(
@@ -36,6 +28,161 @@ export function showMinisterialExam(
     return;
   }
 
+  function getValidInitialState() {
+  if (
+    !initialState ||
+    typeof initialState !== "object"
+  ) {
+    return null;
+  }
+
+  const savedQuestionIds =
+    initialState.questionIds;
+
+  const currentQuestionIds =
+    questions.map(
+      (question) => question.id
+    );
+
+  const hasValidQuestionIds =
+    Array.isArray(savedQuestionIds) &&
+    savedQuestionIds.length ===
+      currentQuestionIds.length &&
+    savedQuestionIds.every(
+      (questionId, index) =>
+        questionId ===
+        currentQuestionIds[index]
+    );
+
+  if (!hasValidQuestionIds) {
+    return null;
+  }
+
+  const savedCurrentIndex =
+    Number(initialState.currentIndex);
+
+  const savedRemainingSeconds =
+    Number(initialState.remainingSeconds);
+
+  const hasValidCurrentIndex =
+    Number.isInteger(savedCurrentIndex) &&
+    savedCurrentIndex >= 0 &&
+    savedCurrentIndex <
+      questions.length;
+
+  const maximumDurationSeconds =
+    durationMinutes * 60;
+
+  const hasValidRemainingTime =
+    Number.isFinite(
+      savedRemainingSeconds
+    ) &&
+    savedRemainingSeconds > 0 &&
+    savedRemainingSeconds <=
+      maximumDurationSeconds;
+
+  if (
+    !hasValidCurrentIndex ||
+    !hasValidRemainingTime
+  ) {
+    return null;
+  }
+
+  return initialState;
+}
+
+const validInitialState =
+  getValidInitialState();
+
+let currentIndex =
+  validInitialState
+    ? Number(
+        validInitialState.currentIndex
+      )
+    : 0;
+
+let remainingSeconds =
+  validInitialState
+    ? Math.floor(
+        Number(
+          validInitialState
+            .remainingSeconds
+        )
+      )
+    : durationMinutes * 60;
+
+let timerId = null;
+let examFinished = false;
+
+const selectedAnswers = {};
+
+const flaggedQuestionIds =
+  new Set();
+
+const EXAM_STORAGE_KEY =
+  "mshPatenteMinisterialExamDraft";
+
+if (
+  validInitialState &&
+  validInitialState.selectedAnswers &&
+  typeof validInitialState
+    .selectedAnswers === "object"
+) {
+  const validQuestionIds =
+    new Set(
+      questions.map(
+        (question) => question.id
+      )
+    );
+
+  Object.entries(
+    validInitialState.selectedAnswers
+  ).forEach(
+    ([
+      questionId,
+      selectedAnswer
+    ]) => {
+      const isValidAnswer =
+        selectedAnswer === true ||
+        selectedAnswer === false;
+
+      if (
+        validQuestionIds.has(
+          questionId
+        ) &&
+        isValidAnswer
+      ) {
+        selectedAnswers[
+          questionId
+        ] = selectedAnswer;
+      }
+    }
+  );
+}
+if (
+  validInitialState &&
+  Array.isArray(
+    validInitialState.flaggedQuestionIds
+  )
+) {
+  const validQuestionIds =
+    new Set(
+      questions.map(
+        (question) => question.id
+      )
+    );
+
+  validInitialState.flaggedQuestionIds
+    .forEach((questionId) => {
+      if (
+        validQuestionIds.has(questionId)
+      ) {
+        flaggedQuestionIds.add(
+          questionId
+        );
+      }
+    });
+}
   function showExamError(message) {
     app.innerHTML = `
       <main class="page">
@@ -89,6 +236,63 @@ export function showMinisterialExam(
     )}`;
   }
 
+function saveExamState() {
+  if (examFinished) {
+    return;
+  }
+
+  const examState = {
+  version: 1,
+  mode: "ministerial",
+  resumed:
+    Boolean(validInitialState),
+  currentIndex,
+    remainingSeconds,
+    selectedAnswers: {
+  ...selectedAnswers
+},
+flaggedQuestionIds: [
+  ...flaggedQuestionIds
+],
+questionIds: questions.map(
+  (question) => question.id
+),
+    durationMinutes,
+    maximumErrors,
+    updatedAt:
+      new Date().toISOString()
+  };
+
+  try {
+    localStorage.setItem(
+      EXAM_STORAGE_KEY,
+      JSON.stringify(examState)
+    );
+  } catch (error) {
+    console.error(
+      "Impossibile salvare l'esame:",
+      error
+    );
+  }
+}
+
+function clearSavedExamState() {
+  try {
+    localStorage.removeItem(
+      EXAM_STORAGE_KEY
+    );
+  } catch (error) {
+    console.error(
+      "Impossibile eliminare il salvataggio:",
+      error
+    );
+  }
+}
+
+function handleExamPageLeave() {
+  saveExamState();
+}
+
   function getAnsweredCount() {
     return Object.keys(
       selectedAnswers
@@ -112,317 +316,565 @@ export function showMinisterialExam(
   }
 
   function renderExam() {
-    const currentQuestion =
-      questions[currentIndex];
+  const currentQuestion =
+    questions[currentIndex];
 
-    const currentAnswer =
-      getCurrentAnswer();
+  const currentAnswer =
+    getCurrentAnswer();
 
-    const answeredCount =
-      getAnsweredCount();
+  const answeredCount =
+    getAnsweredCount();
 
-    const progressPercentage =
-      Math.round(
-        (
-          answeredCount /
-          questions.length
-        ) * 100
-      );
+    const flaggedCount =
+  flaggedQuestionIds.size;
 
-    app.innerHTML = `
-      <main class="exam-page">
-        <section class="exam-shell">
-          <header class="exam-header">
-            <div class="exam-brand">
-              <p class="eyebrow">
-                SIMULAZIONE UFFICIALE
+const currentQuestionIsFlagged =
+  flaggedQuestionIds.has(
+    currentQuestion.id
+  );
+
+  const unansweredCount =
+    getUnansweredCount();
+
+  const progressPercentage =
+    Math.round(
+      (
+        answeredCount /
+        questions.length
+      ) * 100
+    );
+
+  const questionGroups = [];
+
+  for (
+    let startIndex = 0;
+    startIndex < questions.length;
+    startIndex += 10
+  ) {
+    const endIndex =
+  Math.min(
+    startIndex + 10,
+    questions.length
+  );
+
+const isCurrentGroup =
+  currentIndex >= startIndex &&
+  currentIndex < endIndex;
+
+questionGroups.push({
+  startIndex,
+  endIndex,
+  isCurrentGroup
+});
+  }
+
+  const hasQuestionImage =
+    Boolean(currentQuestion.image);
+
+  app.innerHTML = `
+    <main class="ministerial-exam-page">
+      <section class="ministerial-exam-shell">
+
+        <header class="ministerial-real-header">
+          <div class="ministerial-real-brand">
+            <div class="ministerial-real-emblem">
+              🇮🇹
+            </div>
+
+            <div>
+              <p class="ministerial-real-ministry">
+                Ministero delle Infrastrutture
+                e dei Trasporti
               </p>
 
               <h1>
-                Scheda Ministeriale
+                Scheda Esame
               </h1>
 
+              <p class="ministerial-real-subtitle">
+                Simulazione patente di guida
+              </p>
+            </div>
+          </div>
+
+          <div class="ministerial-real-type">
+            <span>Categoria</span>
+            <strong>B</strong>
+          </div>
+        </header>
+
+        <section class="ministerial-question-groups">
+          ${questionGroups
+            .map(
+  ({
+    startIndex,
+    endIndex,
+    isCurrentGroup
+  }) => `
+                <div
+  class="
+    ministerial-question-group
+    ${
+      isCurrentGroup
+        ? "ministerial-question-group-current"
+        : ""
+    }
+  "
+>
+                  <div class="ministerial-group-label">
+                    Domande da
+                    ${startIndex + 1}
+                    a
+                    ${endIndex}
+                  </div>
+
+                  <div class="ministerial-group-numbers">
+                    ${questions
+                      .slice(
+                        startIndex,
+                        endIndex
+                      )
+                      .map(
+                        (
+                          question,
+                          localIndex
+                        ) => {
+                          const questionIndex =
+                            startIndex +
+                            localIndex;
+
+                          const answered =
+                            selectedAnswers[
+                              question.id
+                            ] !== undefined;
+
+                          const active =
+                            questionIndex ===
+                            currentIndex;
+const unanswered =
+  !answered;
+  const flagged =
+  flaggedQuestionIds.has(
+    question.id
+  );
+                          return `
+                            <button
+                              class="
+  exam-question-number
+  ministerial-number-button
+  ${
+    answered
+      ? "exam-question-answered"
+      : ""
+  }
+  ${
+    unanswered
+      ? "exam-question-unanswered"
+      : ""
+  }
+  ${
+  flagged
+    ? "exam-question-flagged"
+    : ""
+}
+${
+
+    active
+      ? "exam-question-current"
+      : ""
+  }
+"
+                              data-question-index="${questionIndex}"
+                              aria-label="Vai alla domanda ${
+                                questionIndex + 1
+                              }"
+                            >
+                              ${questionIndex + 1}
+                            </button>
+                          `;
+                        }
+                      )
+                      .join("")}
+                  </div>
+                </div>
+              `
+            )
+            .join("")}
+        </section>
+
+      <div class="ministerial-question-legend">
+  <div class="ministerial-question-legend-item">
+    <span
+      class="
+        ministerial-question-legend-box
+        legend-current
+      "
+    ></span>
+
+    <span>
+      Domanda attuale
+    </span>
+  </div>
+
+  <div class="ministerial-question-legend-item">
+    <span
+      class="
+        ministerial-question-legend-box
+        legend-answered
+      "
+    ></span>
+
+    <span>
+      Risposta data
+    </span>
+  </div>
+
+  <div class="ministerial-question-legend-item">
+    <span
+      class="
+        ministerial-question-legend-box
+        legend-unanswered
+      "
+    ></span>
+
+    <span>
+      Senza risposta
+    </span>
+  </div>
+
+  <div class="ministerial-question-legend-item">
+    <span
+      class="
+        ministerial-question-legend-box
+        legend-flagged
+      "
+    >
+      ★
+    </span>
+
+    <span>
+      Da rivedere (${flaggedCount})
+    </span>
+  </div>
+</div>
+
+<section class="ministerial-status-strip">
+          <div>
+            <span>Domanda attuale</span>
+            <strong>
+              ${currentIndex + 1}
+              /
+              ${questions.length}
+            </strong>
+          </div>
+
+          <div>
+            <span>Risposte date</span>
+            <strong>
+              ${answeredCount}
+            </strong>
+          </div>
+
+          <div>
+            <span>Da rispondere</span>
+            <strong>
+              ${unansweredCount}
+            </strong>
+          </div>
+
+          <div>
+            <span>Completamento</span>
+            <strong>
+              ${progressPercentage}%
+            </strong>
+          </div>
+        </section>
+
+        <section class="ministerial-work-area">
+
+         <div class="ministerial-image-panel">
+  ${
+    hasQuestionImage
+      ? `
+        <button
+          id="openQuestionImageButton"
+          class="ministerial-image-button"
+          type="button"
+          aria-label="Ingrandisci l'immagine della domanda"
+        >
+          <img
+            id="ministerialQuestionImage"
+            class="ministerial-question-image"
+            src="${currentQuestion.image}"
+            alt="Immagine relativa alla domanda ${
+              currentIndex + 1
+            }"
+          >
+
+          <span class="ministerial-image-zoom-label">
+            🔍 Ingrandisci
+          </span>
+        </button>
+
+        <div
+          id="questionImageFallback"
+          class="ministerial-image-placeholder"
+          hidden
+        >
+          <span>⚠️</span>
+
+          <strong>
+            Immagine non disponibile
+          </strong>
+
+          <p>
+            Non è stato possibile caricare
+            l'immagine della domanda.
+          </p>
+        </div>
+      `
+      : `
+        <div class="ministerial-image-placeholder">
+          <span>🛣️</span>
+
+          <strong>
+            Nessuna immagine
+          </strong>
+
+          <p>
+            Questa domanda non richiede
+            un'immagine.
+          </p>
+        </div>
+      `
+  }
+</div>
+
+          <div class="ministerial-question-area">
+
+           <div class="ministerial-question-titlebar">
+  <div class="ministerial-question-title-info">
+    <span>
+      Domanda numero
+    </span>
+
+    <strong>
+      ${currentIndex + 1}
+    </strong>
+  </div>
+
+  <button
+    id="toggleQuestionFlagButton"
+    class="
+      ministerial-flag-button
+      ${
+        currentQuestionIsFlagged
+          ? "ministerial-flag-button-active"
+          : ""
+      }
+    "
+    type="button"
+    aria-pressed="${
+      currentQuestionIsFlagged
+        ? "true"
+        : "false"
+    }"
+  >
+    <span aria-hidden="true">
+      ${
+        currentQuestionIsFlagged
+          ? "★"
+          : "☆"
+      }
+    </span>
+
+    <span>
+      ${
+        currentQuestionIsFlagged
+          ? "Segnata per dopo"
+          : "Segna per dopo"
+      }
+    </span>
+  </button>
+</div>
+
+            <div class="ministerial-question-text">
               <p>
-                ${questions.length} domande ·
-                Massimo ${maximumErrors} errori
+                ${currentQuestion.question}
               </p>
             </div>
 
-            <div
-              id="examTimer"
-              class="exam-timer ${
+            <div class="ministerial-answer-area">
+              <button
+                id="ministerialTrueButton"
+                class="
+                  exam-answer-button
+                  ministerial-answer-button
+                  ${
+                    currentAnswer === true
+                      ? "exam-answer-selected ministerial-answer-selected"
+                      : ""
+                  }
+                "
+                type="button"
+              >
+                <span class="ministerial-answer-label">
+                  Vero
+                </span>
+
+                <span class="ministerial-answer-symbol">
+                  V
+                </span>
+              </button>
+
+              <button
+                id="ministerialFalseButton"
+                class="
+                  exam-answer-button
+                  ministerial-answer-button
+                  ${
+                    currentAnswer === false
+                      ? "exam-answer-selected ministerial-answer-selected"
+                      : ""
+                  }
+                "
+                type="button"
+              >
+                <span class="ministerial-answer-label">
+                  Falso
+                </span>
+
+                <span class="ministerial-answer-symbol">
+                  F
+                </span>
+              </button>
+            </div>
+
+          </div>
+        </section>
+
+        <footer class="ministerial-bottom-bar">
+
+          <div
+            id="examTimer"
+            class="
+              exam-timer
+              ministerial-bottom-timer
+              ${
                 remainingSeconds <= 300
                   ? "exam-timer-warning"
                   : ""
-              }"
+              }
+            "
+          >
+            <span>Tempo a disposizione</span>
+
+            <strong>
+              ${formatTime(
+                remainingSeconds
+              )}
+            </strong>
+          </div>
+
+          <div class="ministerial-candidate-box">
+            <span>
+              Candidato
+            </span>
+
+            <strong>
+              Simulazione MSH Patente
+            </strong>
+          </div>
+
+          <div class="ministerial-bottom-actions">
+
+            <button
+              id="previousExamQuestion"
+              class="ministerial-navigation-button"
+              type="button"
+              ${
+                currentIndex === 0
+                  ? "disabled"
+                  : ""
+              }
             >
-              <span>Tempo rimasto</span>
+              <span>◀</span>
+              Precedente
+            </button>
 
-              <strong>
-                ${formatTime(
-                  remainingSeconds
-                )}
-              </strong>
-            </div>
-          </header>
+            ${
+              currentIndex <
+              questions.length - 1
+                ? `
+                  <button
+                    id="nextExamQuestion"
+                    class="ministerial-navigation-button"
+                    type="button"
+                  >
+                    Successiva
+                    <span>▶</span>
+                  </button>
+                `
+                : `
+                  <button
+                    id="openExamSubmit"
+                    class="
+                      ministerial-navigation-button
+                      ministerial-submit-button
+                    "
+                    type="button"
+                  >
+                    Consegna esame
+                    <span>📤</span>
+                  </button>
+                `
+            }
 
-          <div class="exam-progress-section">
-            <div class="exam-progress-info">
-              <span>
-                ${answeredCount} di
-                ${questions.length}
-                risposte
-              </span>
-
-              <strong>
-                ${progressPercentage}%
-              </strong>
-            </div>
-
-            <div class="exam-progress-track">
-              <div
-                class="exam-progress-fill"
-                style="
-                  width:
-                  ${progressPercentage}%
-                "
-              ></div>
-            </div>
           </div>
+        </footer>
 
-          <div class="exam-layout">
-            <section class="exam-question-panel">
-              <div class="exam-question-header">
-                <div>
-                  <p class="eyebrow">
-                    DOMANDA
-                  </p>
+        <section class="ministerial-secondary-actions">
+          <button
+            id="examSubmitSidebarButton"
+            class="btn btn-danger"
+            type="button"
+          >
+            Consegna esame
+          </button>
 
-                  <h2>
-                    ${currentIndex + 1}
-                    di
-                    ${questions.length}
-                  </h2>
-                </div>
-
-                <span
-                  class="exam-answer-status ${
-                    currentAnswer ===
-                    undefined
-                      ? "answer-status-pending"
-                      : "answer-status-given"
-                  }"
-                >
-                  ${
-                    currentAnswer ===
-                    undefined
-                      ? "Da rispondere"
-                      : "Risposta data"
-                  }
-                </span>
-              </div>
-
-              <div class="exam-question-box">
-                <p>
-                  ${currentQuestion.question}
-                </p>
-              </div>
-
-              <div class="exam-answer-grid">
-                <button
-                  id="ministerialTrueButton"
-                  class="
-                    exam-answer-button
-                    ${
-                      currentAnswer === true
-                        ? "exam-answer-selected"
-                        : ""
-                    }
-                  "
-                >
-                  <span class="exam-answer-letter">
-                    V
-                  </span>
-
-                  <span>VERO</span>
-                </button>
-
-                <button
-                  id="ministerialFalseButton"
-                  class="
-                    exam-answer-button
-                    ${
-                      currentAnswer === false
-                        ? "exam-answer-selected"
-                        : ""
-                    }
-                  "
-                >
-                  <span class="exam-answer-letter">
-                    F
-                  </span>
-
-                  <span>FALSO</span>
-                </button>
-              </div>
-
-              <div class="exam-navigation">
-                <button
-                  id="previousExamQuestion"
-                  class="btn btn-secondary"
-                  ${
-                    currentIndex === 0
-                      ? "disabled"
-                      : ""
-                  }
-                >
-                  ← Precedente
-                </button>
-
-                ${
-                  currentIndex <
-                  questions.length - 1
-                    ? `
-                      <button
-                        id="nextExamQuestion"
-                        class="btn btn-primary"
-                      >
-                        Successiva →
-                      </button>
-                    `
-                    : `
-                      <button
-                        id="openExamSubmit"
-                        class="btn btn-primary"
-                      >
-                        Consegna esame
-                      </button>
-                    `
-                }
-              </div>
-            </section>
-
-            <aside class="exam-overview-panel">
-              <div class="exam-overview-header">
-                <div>
-                  <p class="eyebrow">
-                    PANORAMICA
-                  </p>
-
-                  <h2>
-                    Domande
-                  </h2>
-                </div>
-
-                <span>
-                  ${getUnansweredCount()}
-                  mancanti
-                </span>
-              </div>
-
-              <div class="exam-question-grid">
-                ${questions
-                  .map(
-                    (
-                      question,
-                      index
-                    ) => {
-                      const answered =
-                        selectedAnswers[
-                          question.id
-                        ] !== undefined;
-
-                      const active =
-                        index ===
-                        currentIndex;
-
-                      return `
-                        <button
-                          class="
-                            exam-question-number
-                            ${
-                              answered
-                                ? "exam-question-answered"
-                                : ""
-                            }
-                            ${
-                              active
-                                ? "exam-question-current"
-                                : ""
-                            }
-                          "
-                          data-question-index="${index}"
-                        >
-                          ${index + 1}
-                        </button>
-                      `;
-                    }
-                  )
-                  .join("")}
-              </div>
-
-              <div class="exam-legend">
-                <div>
-                  <span
-                    class="
-                      legend-box
-                      legend-current
-                    "
-                  ></span>
-
-                  Domanda attuale
-                </div>
-
-                <div>
-                  <span
-                    class="
-                      legend-box
-                      legend-answered
-                    "
-                  ></span>
-
-                  Risposta data
-                </div>
-
-                <div>
-                  <span
-                    class="
-                      legend-box
-                      legend-pending
-                    "
-                  ></span>
-
-                  Da rispondere
-                </div>
-              </div>
-
-              <button
-                id="examSubmitSidebarButton"
-                class="btn btn-danger full-width"
-              >
-                Consegna esame
-              </button>
-
-              <button
-                id="exitMinisterialExamButton"
-                class="exam-exit-button"
-              >
-                Abbandona la simulazione
-              </button>
-            </aside>
-          </div>
+          <button
+            id="exitMinisterialExamButton"
+            class="exam-exit-button"
+            type="button"
+          >
+            Abbandona la simulazione
+          </button>
         </section>
-      </main>
 
-      <div
-        id="examModalContainer"
-      ></div>
-    `;
+      </section>
+    </main>
 
-    attachExamListeners();
+    <div
+      id="examModalContainer"
+    ></div>
+  `;
+
+  attachExamListeners();
+
   }
 
   function attachExamListeners() {
+    const flagButton =
+  document.querySelector(
+    "#toggleQuestionFlagButton"
+  );
+
+if (flagButton) {
+  flagButton.addEventListener(
+    "click",
+    toggleCurrentQuestionFlag
+  );
+}
     document
       .querySelector(
         "#ministerialTrueButton"
@@ -513,43 +965,275 @@ export function showMinisterialExam(
           }
         );
       });
+      const questionImage =
+  document.querySelector(
+    "#ministerialQuestionImage"
+  );
+
+const questionImageFallback =
+  document.querySelector(
+    "#questionImageFallback"
+  );
+
+const openImageButton =
+  document.querySelector(
+    "#openQuestionImageButton"
+  );
+
+if (
+  questionImage &&
+  questionImageFallback &&
+  openImageButton
+) {
+  questionImage.addEventListener(
+    "error",
+    () => {
+      openImageButton.hidden = true;
+      questionImageFallback.hidden = false;
+    }
+  );
+
+  openImageButton.addEventListener(
+    "click",
+    openQuestionImageModal
+  );
+}
   }
 
-  function selectAnswer(answer) {
-    const currentQuestion =
-      questions[currentIndex];
+  function toggleCurrentQuestionFlag() {
+  const currentQuestion =
+    questions[currentIndex];
 
-    selectedAnswers[
+  if (
+    flaggedQuestionIds.has(
       currentQuestion.id
-    ] = answer;
-
-    renderExam();
+    )
+  ) {
+    flaggedQuestionIds.delete(
+      currentQuestion.id
+    );
+  } else {
+    flaggedQuestionIds.add(
+      currentQuestion.id
+    );
   }
+
+  saveExamState();
+  renderExam();
+}
+  function selectAnswer(answer) {
+  const currentQuestion =
+    questions[currentIndex];
+
+  selectedAnswers[
+    currentQuestion.id
+  ] = answer;
+
+  saveExamState();
+  renderExam();
+}
 
   function goToQuestion(index) {
-    if (
-      index < 0 ||
-      index >= questions.length
-    ) {
-      return;
-    }
-
-    currentIndex = index;
-
-    renderExam();
+  if (
+    index < 0 ||
+    index >= questions.length
+  ) {
+    return;
   }
+
+  currentIndex = index;
+
+  saveExamState();
+  renderExam();
+}
 
   function goToPreviousQuestion() {
-    goToQuestion(
-      currentIndex - 1
-    );
+  goToQuestion(
+    currentIndex - 1
+  );
+}
+
+function goToNextQuestion() {
+  goToQuestion(
+    currentIndex + 1
+  );
+}
+
+function handleExamKeyboard(event) {
+  if (examFinished) {
+    return;
   }
 
-  function goToNextQuestion() {
-    goToQuestion(
-      currentIndex + 1
+  const modalContainer =
+    document.querySelector(
+      "#examModalContainer"
     );
+
+  const modalIsOpen =
+    modalContainer &&
+    modalContainer.innerHTML.trim() !== "";
+
+  if (modalIsOpen) {
+    if (event.key === "Escape") {
+      event.preventDefault();
+      closeExamModal();
+    }
+
+    return;
   }
+
+  const activeElement =
+    document.activeElement;
+
+  const isTyping =
+    activeElement &&
+    (
+      activeElement.tagName === "INPUT" ||
+      activeElement.tagName === "TEXTAREA" ||
+      activeElement.tagName === "SELECT"
+    );
+
+  if (isTyping) {
+    return;
+  }
+
+  const pressedKey =
+    event.key.toLowerCase();
+
+  if (pressedKey === "v") {
+    event.preventDefault();
+    selectAnswer(true);
+    return;
+  }
+
+  if (pressedKey === "f") {
+    event.preventDefault();
+    selectAnswer(false);
+    return;
+  }
+
+  if (event.key === "ArrowLeft") {
+    event.preventDefault();
+
+    if (currentIndex > 0) {
+      goToPreviousQuestion();
+    }
+
+    return;
+  }
+
+  if (event.key === "ArrowRight") {
+    event.preventDefault();
+
+    if (
+      currentIndex <
+      questions.length - 1
+    ) {
+      goToNextQuestion();
+    }
+
+    return;
+  }
+
+  if (
+    event.key === "Enter" &&
+    currentIndex ===
+      questions.length - 1
+  ) {
+    event.preventDefault();
+    openSubmitConfirmation();
+  }
+}
+
+function openQuestionImageModal() {
+  const currentQuestion =
+    questions[currentIndex];
+
+  if (!currentQuestion.image) {
+    return;
+  }
+
+  const modalContainer =
+    document.querySelector(
+      "#examModalContainer"
+    );
+
+  if (!modalContainer) {
+    return;
+  }
+
+  modalContainer.innerHTML = `
+    <div
+      class="
+        exam-modal-backdrop
+        question-image-modal-backdrop
+      "
+      id="questionImageModalBackdrop"
+    >
+      <section class="question-image-modal">
+        <div class="question-image-modal-header">
+          <div>
+            <p class="eyebrow">
+              DOMANDA ${currentIndex + 1}
+            </p>
+
+            <h2>
+              Immagine della domanda
+            </h2>
+          </div>
+
+          <button
+            id="closeQuestionImageModal"
+            class="question-image-modal-close"
+            type="button"
+            aria-label="Chiudi immagine"
+          >
+            ✕
+          </button>
+        </div>
+
+        <div class="question-image-modal-content">
+          <img
+            src="${currentQuestion.image}"
+            alt="Immagine ingrandita della domanda ${
+              currentIndex + 1
+            }"
+          >
+        </div>
+
+        <p class="question-image-modal-hint">
+          Premi ESC o clicca fuori dall'immagine
+          per chiudere.
+        </p>
+      </section>
+    </div>
+  `;
+
+  document
+    .querySelector(
+      "#closeQuestionImageModal"
+    )
+    .addEventListener(
+      "click",
+      closeExamModal
+    );
+
+  document
+    .querySelector(
+      "#questionImageModalBackdrop"
+    )
+    .addEventListener(
+      "click",
+      (event) => {
+        if (
+          event.target.id ===
+          "questionImageModalBackdrop"
+        ) {
+          closeExamModal();
+        }
+      }
+    );
+}
 
   function openSubmitConfirmation() {
     const unansweredCount =
@@ -715,9 +1399,16 @@ export function showMinisterialExam(
       () => {
         remainingSeconds -= 1;
 
-        updateTimerDisplay();
+updateTimerDisplay();
 
-        if (remainingSeconds <= 0) {
+if (
+  remainingSeconds > 0 &&
+  remainingSeconds % 5 === 0
+) {
+  saveExamState();
+}
+
+if (remainingSeconds <= 0) {
           finishExam("time-expired");
         }
       },
@@ -759,108 +1450,144 @@ export function showMinisterialExam(
     }
   }
 
-  function finishExam(reason) {
-    if (examFinished) {
-      return;
-    }
+function finishExam(reason) {
+  if (examFinished) {
+    return;
+  }
 
-    examFinished = true;
+  examFinished = true;
 
-    stopTimer();
+  stopTimer();
 
-    const answers =
-      questions.map((question) => {
-        const selectedAnswer =
-          selectedAnswers[
-            question.id
-          ];
+  document.removeEventListener(
+    "keydown",
+    handleExamKeyboard
+  );
 
-        const answered =
-          selectedAnswer !== undefined;
+  window.removeEventListener(
+    "pagehide",
+    handleExamPageLeave
+  );
 
-        const isCorrect =
-          answered &&
-          selectedAnswer ===
-            question.answer;
+  clearSavedExamState();
 
-        return {
-          questionId:
-            question.id,
+  const answers =
+    questions.map((question) => {
+      const selectedAnswer =
+        selectedAnswers[
+          question.id
+        ];
 
-          selectedAnswer:
-            answered
-              ? selectedAnswer
-              : null,
+      const answered =
+        selectedAnswer !== undefined;
 
-          correctAnswer:
-            question.answer,
+      const isCorrect =
+        answered &&
+        selectedAnswer ===
+          question.answer;
 
-          answered,
-          isCorrect
-        };
-      });
+      return {
+        questionId:
+          question.id,
 
-    const correctAnswers =
-      answers.filter(
-        (answer) =>
-          answer.isCorrect
-      ).length;
+        selectedAnswer:
+          answered
+            ? selectedAnswer
+            : null,
 
-    const wrongAnswers =
-      answers.filter(
-        (answer) =>
-          !answer.isCorrect
-      ).length;
+        correctAnswer:
+          question.answer,
 
-    const unansweredAnswers =
-      answers.filter(
-        (answer) =>
-          !answer.answered
-      ).length;
-
-    const passed =
-      wrongAnswers <=
-      maximumErrors;
-
-    const totalDurationSeconds =
-      durationMinutes * 60;
-
-    const usedSeconds =
-      Math.max(
-        0,
-        totalDurationSeconds -
-          remainingSeconds
-      );
-
-    onFinish({
-      mode: "ministerial",
-      reason,
-      totalQuestions:
-        questions.length,
-      correctAnswers,
-      wrongAnswers,
-      unansweredAnswers,
-      passed,
-      maximumErrors,
-      durationSeconds:
-        usedSeconds,
-      allowedDurationSeconds:
-        totalDurationSeconds,
-      answers
+        answered,
+        isCorrect
+      };
     });
+
+  const correctAnswers =
+    answers.filter(
+      (answer) =>
+        answer.isCorrect
+    ).length;
+
+  const wrongAnswers =
+    answers.filter(
+      (answer) =>
+        !answer.isCorrect
+    ).length;
+
+  const unansweredAnswers =
+    answers.filter(
+      (answer) =>
+        !answer.answered
+    ).length;
+
+  const passed =
+    wrongAnswers <=
+    maximumErrors;
+
+  const totalDurationSeconds =
+    durationMinutes * 60;
+
+  const usedSeconds =
+    Math.max(
+      0,
+      totalDurationSeconds -
+        remainingSeconds
+    );
+
+  onFinish({
+    mode: "ministerial",
+    reason,
+    totalQuestions:
+      questions.length,
+    correctAnswers,
+    wrongAnswers,
+    unansweredAnswers,
+    passed,
+    maximumErrors,
+    durationSeconds:
+      usedSeconds,
+    allowedDurationSeconds:
+      totalDurationSeconds,
+    answers
+  });
+}
+
+ function exitExam() {
+  if (examFinished) {
+    return;
   }
 
-  function exitExam() {
-    if (examFinished) {
-      return;
-    }
+  examFinished = true;
 
-    examFinished = true;
+  stopTimer();
 
-    stopTimer();
-    onExit();
-  }
+  document.removeEventListener(
+    "keydown",
+    handleExamKeyboard
+  );
 
-  renderExam();
-  startTimer();
+  window.removeEventListener(
+    "pagehide",
+    handleExamPageLeave
+  );
+
+  clearSavedExamState();
+
+  onExit();
+}
+
+document.addEventListener(
+  "keydown",
+  handleExamKeyboard
+);
+
+window.addEventListener(
+  "pagehide",
+  handleExamPageLeave
+);
+
+saveExamState();
+renderExam();
+startTimer();
 }

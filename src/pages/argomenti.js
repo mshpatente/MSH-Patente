@@ -147,8 +147,7 @@ export function showArgomenti(
                       topic-button
                       open-argomento-button
                     "
-                    data-argomento-id="
-                      ${argomento.id}
+                   data-argomento-id="${argomento.id}"
                     "
                   >
                     ${
@@ -184,7 +183,8 @@ export function showArgomenti(
         "click",
         () => {
           const argomentoId =
-            button.dataset.argomentoId;
+  button.dataset.argomentoId
+    ?.trim();
 
           const selectedArgomento =
             argomenti.find(

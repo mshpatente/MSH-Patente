@@ -2,7 +2,7 @@ export const questions = [
   // =====================================================
   // SEGNALI DI PERICOLO
   // =====================================================
-  {
+   {
     id: "segnali-pericolo-001",
     argomentoId: "segnali",
     topicId: "segnali-pericolo",
@@ -10,8 +10,10 @@ export const questions = [
       "I segnali di pericolo hanno generalmente forma triangolare.",
     answer: true,
     explanation:
-      "I segnali di pericolo hanno normalmente forma triangolare con bordo rosso."
+      "I segnali di pericolo hanno normalmente forma triangolare con bordo rosso.",
+    image: "/images/questions/segnale-pericolo.jpg"
   },
+
   {
     id: "segnali-pericolo-002",
     argomentoId: "segnali",

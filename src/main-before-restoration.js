@@ -1,7 +1,4 @@
 import "./style.css";
-import "./internal-pages-restoration.css";
-import "./internal-pages-restoration-final.css";
-import "./visual-polish.css";
 import { showExamHistory } from "./pages/examHistory.js";
 import {
   createUserWithEmailAndPassword,

@@ -2,33 +2,30 @@ import {
   openMinisterialFlow
 } from "./ministerialFlow.js";
 
+import {
+  magicTricks
+} from "../data/magicTricks.js";
+
 export function showDashboard(
   app,
   user,
   stats,
   courseProgress,
   errorStatistics,
+  theorySummary,
   actions
 ) {
   const totalQuestions =
-    Number(
-      stats.totalQuestions
-    ) || 0;
+    Number(stats.totalQuestions) || 0;
 
   const correctAnswers =
-    Number(
-      stats.correctAnswers
-    ) || 0;
+    Number(stats.correctAnswers) || 0;
 
   const wrongAnswers =
-    Number(
-      stats.wrongAnswers
-    ) || 0;
+    Number(stats.wrongAnswers) || 0;
 
   const completedQuizzes =
-    Number(
-      stats.completedQuizzes
-    ) || 0;
+    Number(stats.completedQuizzes) || 0;
 
   const percentage =
     totalQuestions > 0
@@ -51,423 +48,545 @@ export function showDashboard(
     completedTopics = 0,
     coursePercentage = 0,
     lastTopic = null
-  } = courseProgress;
+  } = courseProgress || {};
+
+  const {
+    totalLessons:
+      totalTheoryLessons = 0,
+
+    completedLessons:
+      completedTheoryLessons = 0,
+
+    percentage:
+      theoryPercentage = 0,
+
+    lastLesson:
+      lastTheoryLesson = null
+  } = theorySummary || {};
 
   const activeErrors =
     Number(
-      errorStatistics.activeCount
+      errorStatistics?.activeCount
     ) || 0;
 
-  const masteredErrors =
-    Number(
-      errorStatistics.masteredCount
-    ) || 0;
+  const totalXp =
+    Number(stats.xp) || 0;
 
-  const ministerialAttempts =
-    Number(
-      stats.ministerialAttempts
-    ) || 0;
+  const xpPerLevel = 250;
 
-  const ministerialPassed =
-    Number(
-      stats.ministerialPassed
-    ) || 0;
+  const level =
+    Math.floor(
+      totalXp / xpPerLevel
+    ) + 1;
 
-  const lastMinisterialPassed =
-    stats.lastMinisterialPassed;
+  const currentLevelXp =
+    totalXp % xpPerLevel;
 
-  const lastMinisterialErrors =
-    Number(
-      stats.lastMinisterialErrors
-    );
+  const remainingXp =
+    currentLevelXp === 0
+      ? xpPerLevel
+      : xpPerLevel -
+        currentLevelXp;
 
-    const totalXp =
-  Number(stats.xp) || 0;
+  const nextLevel =
+    level + 1;
 
-const xpPerLevel = 250;
-
-const level =
-  Math.floor(totalXp / xpPerLevel) + 1;
-
-const currentLevelXp =
-  totalXp % xpPerLevel;
-
-const xpPercentage =
-  Math.round(
-    (currentLevelXp / xpPerLevel) * 100
-  );
   app.innerHTML = `
-    <main class="page">
-      <section class="card wide-card dashboard-card">
-        <header class="dashboard-header">
-          <div>
+    <main class="page mobile-dashboard-page">
+      <section
+        class="
+          card
+          wide-card
+          dashboard-card
+          compact-dashboard
+        "
+      >
+        <header class="compact-dashboard-header">
+          <div class="compact-dashboard-user">
             <p class="eyebrow">
               AREA STUDENTE
             </p>
 
             <h1>
-              Benvenuto, ${studentName}
+              Benvenuto,
+              ${studentName}
             </h1>
 
             <p class="student-email">
-              ${user.email}
+              ${user.email || ""}
             </p>
           </div>
 
-          <button
-            id="logoutButton"
-            class="btn btn-danger"
-          >
-            Logout
-          </button>
+          <div class="compact-dashboard-header-actions">
+            <button
+              id="openProfileButton"
+              class="
+                compact-header-button
+                compact-profile-button
+              "
+              type="button"
+            >
+              <span>👤</span>
+              <strong>Profilo</strong>
+            </button>
+
+            <button
+              id="logoutButton"
+              class="
+                compact-header-button
+                compact-logout-button
+              "
+              type="button"
+            >
+              <span>↪</span>
+              <strong>Logout</strong>
+            </button>
+          </div>
         </header>
 
-        <section class="course-progress-card">
-          <div class="course-progress-header">
-            <div>
-              <p class="eyebrow">
-                PROGRESSO DEL CORSO
-              </p>
+        <section class="compact-progress-overview">
+          <article class="compact-progress-item">
+            <span class="compact-progress-label">
+              Progresso corso
+            </span>
 
-              <h2>
-                Il tuo percorso Patente B
-              </h2>
-
-              <p>
-                Hai completato
-                <strong>
-                  ${completedTopics}
-                  di
-                  ${totalTopics}
-                </strong>
-                topic disponibili.
-              </p>
-            </div>
-
-            <div class="course-progress-percentage">
-              ${coursePercentage}%
-            </div>
-          </div>
-
-          <div class="course-progress-track">
             <div
-              class="course-progress-fill"
+              class="compact-progress-circle"
               style="
-                width:
-                ${coursePercentage}%
+                --dashboard-progress:
+                ${coursePercentage * 3.6}deg;
               "
-            ></div>
-          </div>
+            >
+              <strong>
+                ${coursePercentage}%
+              </strong>
+            </div>
+
+            <small>
+              ${completedTopics}/${totalTopics}
+              topic
+            </small>
+          </article>
+
+          <article class="compact-progress-item">
+            <span class="compact-progress-label">
+              Livello
+            </span>
+
+            <div class="compact-level-badge">
+              ${level}
+            </div>
+
+            <strong class="compact-xp-value">
+              ${currentLevelXp} /
+              ${xpPerLevel} XP
+            </strong>
+          </article>
+
+          <article class="compact-progress-item">
+            <span class="compact-progress-label">
+              Prossimo livello
+            </span>
+
+            <div class="compact-trophy">
+              🏆
+            </div>
+
+            <strong class="compact-xp-value">
+              ${remainingXp} XP
+              al livello
+              ${nextLevel}
+            </strong>
+          </article>
         </section>
 
-<section class="achievement-progress-card">
-  <div class="achievement-progress-header">
-    <div>
-      <p class="eyebrow">
-        I MIEI PROGRESSI
-      </p>
-
-      <h2>
-        Livello ${level}
-      </h2>
-
-      <p>
-        Hai accumulato
-        <strong>${totalXp} XP</strong>
-        in totale.
-      </p>
-    </div>
-
-    <div class="achievement-level-badge">
-      <span>🏆</span>
-      <strong>${level}</strong>
-    </div>
-  </div>
-
-  <div class="achievement-xp-info">
-    <span>
-      ${currentLevelXp} / ${xpPerLevel} XP
-    </span>
-
-    <span>
-      ${xpPerLevel - currentLevelXp} XP al prossimo livello
-    </span>
-  </div>
-
-  <div class="achievement-progress-track">
-    <div
-      class="achievement-progress-fill"
-      style="width: ${xpPercentage}%"
-    ></div>
-  </div>
-</section>
-
-        <div class="stats-grid">
-          <article class="stat-card">
-            <span>
-              Quiz completati
+        <section class="compact-stat-grid">
+          <article class="compact-stat-card">
+            <span class="compact-stat-icon">
+              📗
             </span>
 
             <strong>
               ${completedQuizzes}
             </strong>
+
+            <small>
+              Quiz
+            </small>
           </article>
 
-          <article class="stat-card">
-            <span>
-              Domande completate
+          <article class="compact-stat-card">
+            <span class="compact-stat-icon">
+              ❓
             </span>
 
             <strong>
               ${totalQuestions}
             </strong>
+
+            <small>
+              Domande
+            </small>
           </article>
 
-          <article class="stat-card">
-            <span>
-              Risposte corrette
+          <article class="compact-stat-card">
+            <span class="compact-stat-icon">
+              ✅
             </span>
 
             <strong>
               ${correctAnswers}
             </strong>
+
+            <small>
+              Corrette
+            </small>
           </article>
 
-          <article class="stat-card">
-            <span>
-              Risposte sbagliate
+          <article class="compact-stat-card">
+            <span class="compact-stat-icon">
+              ❌
             </span>
 
             <strong>
               ${wrongAnswers}
             </strong>
+
+            <small>
+              Sbagliate
+            </small>
           </article>
 
-          <article class="stat-card percentage-card">
-            <span>
-              Percentuale complessiva
+          <article class="compact-stat-card">
+            <span class="compact-stat-icon">
+              📊
             </span>
 
             <strong>
               ${percentage}%
             </strong>
+
+            <small>
+              Media
+            </small>
           </article>
-        </div>
+        </section>
 
-        ${
-          lastTopic
-            ? `
-              <section class="continue-study-card">
-                <div class="continue-study-icon">
-                  ${lastTopic.icon}
-                </div>
+        <section class="compact-dashboard-section">
+          <h2 class="compact-section-title">
+            AREA STUDIO
+          </h2>
 
-                <div class="continue-study-content">
-                  <p class="eyebrow">
-                    CONTINUA LO STUDIO
-                  </p>
+          <div class="compact-study-grid">
+            <button
+              id="openTheoryButton"
+              class="
+                compact-study-tile
+                compact-theory-tile
+              "
+              type="button"
+            >
+              <span class="compact-study-icon">
+                📚
+              </span>
 
-                  <h2>
-                    ${lastTopic.title}
-                  </h2>
+              <strong>
+                Studia la teoria
+              </strong>
 
-                  <p>
-                    ${lastTopic.argomentoTitle}
-                    · Miglior risultato:
-                    ${lastTopic.bestScore}%
-                  </p>
-                </div>
+              <small>
+                ${theoryPercentage}%
+              </small>
+            </button>
 
-                <button
-                  id="continueStudyButton"
-                  class="btn btn-primary"
-                >
-                  Continua
-                </button>
-              </section>
-            `
-            : ""
-        }
+            <button
+              id="openMagicTricksButton"
+              class="
+                compact-study-tile
+                compact-magic-tile
+              "
+              type="button"
+            >
+              <span class="compact-study-icon">
+                🪄
+              </span>
 
-        <div class="dashboard-actions">
-          <article class="dashboard-action-card">
-            <div class="dashboard-action-icon">
-              📖
-            </div>
+              <strong>
+                Trucco Magico
+              </strong>
 
-            <div>
-              <h2>
-                Quiz per Argomento
-              </h2>
-
-              <p>
-                Studia un topic alla volta
-                e sblocca il quiz completo.
-              </p>
-            </div>
+              <small>
+                ${magicTricks.length}
+                disponibili
+              </small>
+            </button>
 
             <button
               id="startArgomentiButton"
-              class="btn btn-primary"
+              class="
+                compact-study-tile
+                compact-quiz-tile
+              "
+              type="button"
             >
-              Scegli argomento
+              <span class="compact-study-icon">
+                📋
+              </span>
+
+              <strong>
+                Quiz per
+                Argomento
+              </strong>
+
+              <small>
+                ${totalQuestions}
+                domande
+              </small>
             </button>
-          </article>
 
-          <article
-            class="dashboard-action-card error-action-card"
-          >
-            <div class="dashboard-action-icon error-icon">
-              🎯
-            </div>
+            <button
+              id="startMinisterialButton"
+              class="
+                compact-study-tile
+                compact-ministerial-tile
+              "
+              type="button"
+            >
+              <span class="compact-study-icon">
+                🏛️
+              </span>
 
-            <div>
-              <h2>
-                I miei errori
-              </h2>
+              <strong>
+                Scheda
+                Ministeriale
+              </strong>
 
-              <p>
-                ${activeErrors}
-                ${
-                  activeErrors === 1
-                    ? "domanda da ripassare"
-                    : "domande da ripassare"
-                }
-                ·
-                ${masteredErrors}
-                superate
-              </p>
-            </div>
+              <small>
+                Simulazione
+              </small>
+            </button>
 
             <button
               id="openErrorsButton"
-              class="btn ${
-                activeErrors > 0
-                  ? "btn-warning"
-                  : "btn-secondary"
-              }"
+              class="
+                compact-study-tile
+                compact-errors-tile
+              "
+              type="button"
             >
-              ${
-                activeErrors > 0
-                  ? "Ripassa ora"
-                  : "Visualizza"
-              }
+              <span class="compact-study-icon">
+                🎯
+              </span>
+
+              <strong>
+                I miei errori
+              </strong>
+
+              <small>
+                ${activeErrors}
+                da ripassare
+              </small>
             </button>
-          </article>
 
-          <article class="dashboard-action-card ministerial-action-card">
-            <div class="dashboard-action-icon ministerial-action-icon">
-              🇮🇹
-            </div>
+            ${
+              stats.role === "admin"
+                ? `
+                  <button
+                    id="openAdminTheoryButton"
+                    class="
+                      compact-study-tile
+                      compact-admin-tile
+                    "
+                    type="button"
+                  >
+                    <span class="compact-study-icon">
+                      🛠️
+                    </span>
 
-            <div>
-              <p class="eyebrow">
-                SIMULAZIONE REALE
-              </p>
+                    <strong>
+                      Gestione teoria
+                    </strong>
 
-              <h2>
-                Scheda Ministeriale
-              </h2>
+                    <small>
+                      Admin
+                    </small>
+                  </button>
+                `
+                : ""
+            }
+          </div>
+        </section>
 
-              <p>
-                30 domande · 20 minuti ·
-                massimo 3 errori
-              </p>
+        ${
+          lastTopic ||
+          lastTheoryLesson
+            ? `
+              <section class="compact-dashboard-section">
+                <h2 class="compact-section-title">
+                  AZIONI RAPIDE
+                </h2>
 
-              ${
-                ministerialAttempts > 0
-                  ? `
-                    <div class="ministerial-dashboard-stats">
-                      <span>
-                        Tentativi:
-                        <strong>
-                          ${ministerialAttempts}
-                        </strong>
-                      </span>
+                <div class="compact-quick-actions">
+                  ${
+                    lastTheoryLesson
+                      ? `
+                        <button
+                          id="continueTheoryButton"
+                          class="
+                            compact-quick-button
+                            compact-quick-blue
+                          "
+                          type="button"
+                        >
+                          <span>🕒</span>
 
-                      <span>
-                        Promosso:
-                        <strong>
-                          ${ministerialPassed}
-                        </strong>
-                      </span>
+                          <strong>
+                            Continua:
+                            ${lastTheoryLesson.title}
+                          </strong>
 
-                      ${
-                        typeof
-                          lastMinisterialPassed ===
-                          "boolean"
-                          ? `
-                            <span
-                              class="${
-                                lastMinisterialPassed
-                                  ? "last-exam-passed"
-                                  : "last-exam-failed"
-                              }"
-                            >
-                              Ultimo:
-                              ${
-                                lastMinisterialPassed
-                                  ? "PROMOSSO"
-                                  : "BOCCIATO"
-                              }
-                              ·
-                              ${lastMinisterialErrors}
-                              errori
-                            </span>
-                          `
-                          : ""
-                      }
-                    </div>
-                  `
-                  : `
-                    <div class="ministerial-first-attempt">
-                      Nessuna simulazione completata.
-                    </div>
-                  `
-              }
-            </div><div class="ministerial-dashboard-actions">
-  <button
-    id="openExamHistoryButton"
-    class="btn btn-secondary"
-  >
-    Visualizza cronologia
-  </button>
+                          <span>›</span>
+                        </button>
+                      `
+                      : ""
+                  }
 
-  <button
-    id="startMinisterialButton"
-    class="btn btn-ministerial"
-  >
-    Inizia esame
-  </button>
-</div>
+                  ${
+                    lastTopic
+                      ? `
+                        <button
+                          id="continueStudyButton"
+                          class="
+                            compact-quick-button
+                            compact-quick-green
+                          "
+                          type="button"
+                        >
+                          <span>
+                            ${lastTopic.icon || "📘"}
+                          </span>
 
-<footer class="dashboard-footer">
-  <p>
-    MSH Patente v1.0
-  </p>
+                          <strong>
+                            Continua:
+                            ${lastTopic.title}
+                          </strong>
 
-  <p>
-    © 2026 MSH Patente
-  </p>
-</footer>
+                          <span>›</span>
+                        </button>
+                      `
+                      : ""
+                  }
+
+                  <button
+                    id="openExamHistoryButton"
+                    class="
+                      compact-quick-button
+                      compact-quick-orange
+                    "
+                    type="button"
+                  >
+                    <span>📊</span>
+
+                    <strong>
+                      Cronologia esami
+                    </strong>
+
+                    <span>›</span>
+                  </button>
+                </div>
+              </section>
+            `
+            : `
+              <section class="compact-dashboard-section">
+                <h2 class="compact-section-title">
+                  AZIONI RAPIDE
+                </h2>
+
+                <div class="compact-quick-actions">
+                  <button
+                    id="openExamHistoryButton"
+                    class="
+                      compact-quick-button
+                      compact-quick-orange
+                    "
+                    type="button"
+                  >
+                    <span>📊</span>
+
+                    <strong>
+                      Cronologia esami
+                    </strong>
+
+                    <span>›</span>
+                  </button>
+                </div>
+              </section>
+            `
+        }
+
+        <footer class="compact-dashboard-footer">
+          <strong>
+            MSH PATENTE v1.0
+          </strong>
+
+          <span>
+            © 2026 MSH
+          </span>
+        </footer>
       </section>
     </main>
   `;
 
   document
     .querySelector(
+      "#openProfileButton"
+    )
+    ?.addEventListener(
+      "click",
+      actions.onOpenProfile
+    );
+
+  document
+    .querySelector(
       "#logoutButton"
     )
-    .addEventListener(
+    ?.addEventListener(
       "click",
       actions.onLogout
     );
 
   document
     .querySelector(
+      "#openTheoryButton"
+    )
+    ?.addEventListener(
+      "click",
+      actions.onOpenTheory
+    );
+
+  document
+    .querySelector(
+      "#continueTheoryButton"
+    )
+    ?.addEventListener(
+      "click",
+      actions.onOpenTheory
+    );
+
+  document
+    .querySelector(
+      "#openMagicTricksButton"
+    )
+    ?.addEventListener(
+      "click",
+      actions.onOpenMagicTricks
+    );
+
+  document
+    .querySelector(
       "#startArgomentiButton"
     )
-    .addEventListener(
+    ?.addEventListener(
       "click",
       actions.onStartArgomenti
     );
@@ -476,28 +595,34 @@ const xpPercentage =
     .querySelector(
       "#openErrorsButton"
     )
-    .addEventListener(
+    ?.addEventListener(
       "click",
       actions.onOpenErrors
     );
-const examHistoryButton =
-  document.querySelector(
-    "#openExamHistoryButton"
-  );
 
-if (examHistoryButton) {
-  examHistoryButton.addEventListener(
-    "click",
-    () => {
-      actions.onOpenExamHistory();
-    }
-  );
-}
+  document
+    .querySelector(
+      "#openAdminTheoryButton"
+    )
+    ?.addEventListener(
+      "click",
+      actions.onOpenAdminTheory
+    );
+
+  document
+    .querySelector(
+      "#openExamHistoryButton"
+    )
+    ?.addEventListener(
+      "click",
+      actions.onOpenExamHistory
+    );
+
   document
     .querySelector(
       "#startMinisterialButton"
     )
-    .addEventListener(
+    ?.addEventListener(
       "click",
       () => {
         openMinisterialFlow(
@@ -511,22 +636,23 @@ if (examHistoryButton) {
       }
     );
 
-  const continueButton =
+  const continueStudyButton =
     document.querySelector(
       "#continueStudyButton"
     );
 
   if (
-    continueButton &&
+    continueStudyButton &&
     lastTopic
   ) {
-    continueButton.addEventListener(
-      "click",
-      () => {
-        actions.onContinueStudy(
-          lastTopic
-        );
-      }
-    );
+    continueStudyButton
+      .addEventListener(
+        "click",
+        () => {
+          actions.onContinueStudy(
+            lastTopic
+          );
+        }
+      );
   }
 }
