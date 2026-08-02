@@ -1,0 +1,324 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isSignedIn()
+        && request.auth.uid == userId;
+    }
+
+    function userDocumentExists() {
+      return isSignedIn()
+        && exists(
+          /databases/$(database)/documents/users/$(request.auth.uid)
+        );
+    }
+
+    function currentUserData() {
+      return get(
+        /databases/$(database)/documents/users/$(request.auth.uid)
+      ).data;
+    }
+
+    function isAdmin() {
+      return userDocumentExists()
+        && currentUserData().role == "admin";
+    }
+
+    function isPublishedDocument() {
+      return resource.data.status == "published";
+    }
+
+    function isValidSubtopicAccessLevel() {
+      return request.resource.data.accessLevel == "free"
+        || request.resource.data.accessLevel == "premium";
+    }
+
+    function hasActivePremiumProfile() {
+      return userDocumentExists()
+        && currentUserData().premiumAccess.enabled == true
+        && (
+          currentUserData().premiumAccess.unlimited == true
+          || (
+            currentUserData().premiumAccess.expiresAt is timestamp
+            && currentUserData().premiumAccess.expiresAt > request.time
+          )
+        );
+    }
+
+    function canReadPublishedTheoryLesson() {
+      return isSignedIn()
+        && isPublishedDocument()
+        && (
+          resource.data.accessLevel == "free"
+          || (
+            resource.data.accessLevel == "premium"
+            && hasActivePremiumProfile()
+          )
+        );
+    }
+
+    function isValidOwnerDeviceUpdate() {
+      let changedKeys =
+        request.resource.data
+          .diff(resource.data)
+          .affectedKeys();
+
+      let oldDevice =
+        resource.data.authorizedDevice;
+
+      let newDevice =
+        request.resource.data.authorizedDevice;
+
+      let initialBinding =
+        (
+          oldDevice.deviceIdHash == ""
+          || oldDevice.status == "unbound"
+          || oldDevice.status == "reset"
+        )
+        && newDevice.deviceIdHash is string
+        && newDevice.deviceIdHash.size() > 0
+        && newDevice.status == "active"
+        && newDevice.resetAt == null
+        && newDevice.resetBy == "";
+
+      let sameDeviceHeartbeat =
+        oldDevice.deviceIdHash != ""
+        && newDevice.deviceIdHash ==
+          oldDevice.deviceIdHash
+        && newDevice.status == "active"
+        && newDevice.boundAt ==
+          oldDevice.boundAt
+        && newDevice.resetAt ==
+          oldDevice.resetAt
+        && newDevice.resetBy ==
+          oldDevice.resetBy;
+
+      return changedKeys.hasOnly([
+          "authorizedDevice"
+        ])
+        && request.resource.data.uid ==
+          resource.data.uid
+        && request.resource.data.role ==
+          resource.data.role
+        && request.resource.data.premiumAccess ==
+          resource.data.premiumAccess
+        && (
+          initialBinding
+          || sameDeviceHeartbeat
+        );
+    }
+
+    match /users/{userId} {
+
+      allow read:
+        if isOwner(userId) || isAdmin();
+
+      allow create:
+        if isOwner(userId)
+        && request.resource.data.uid == userId
+        && request.resource.data.role == "student";
+
+      allow update:
+        if isAdmin()
+        || (
+          isOwner(userId)
+          && request.resource.data.uid ==
+            resource.data.uid
+          && request.resource.data.role ==
+            resource.data.role
+          && (
+            request.resource.data
+              .diff(resource.data)
+              .affectedKeys()
+              .hasOnly([
+                "name",
+                "displayName",
+                "phone",
+                "photoURL",
+                "xp",
+                "level",
+                "completedQuizzes",
+                "totalQuestions",
+                "correctAnswers",
+                "wrongAnswers",
+                "perfectQuizzes",
+                "totalQuizSeconds",
+                "lastQuizAt",
+                "lastQuizMode",
+                "lastQuizName",
+                "lastQuizScore",
+                "lastQuizPercentage",
+                "lastQuizDurationSeconds",
+                "lastAverageSecondsPerQuestion",
+                "lastUnansweredAnswers",
+                "lastFlaggedQuestions",
+                "lastArgomentoId",
+                "lastArgomentoName",
+                "lastTopicId",
+                "lastTopicName",
+                "lastSubtopicId",
+                "lastSubtopicTitle",
+                "lastLessonId",
+                "lastProgressiveLessonIds",
+                "lastProgressiveLessonCount",
+                "lastAdaptiveQuizAt",
+                "lastAdaptiveQuizPercentage",
+                "ministerialAttempts",
+                "ministerialPassed",
+                "ministerialFailed",
+                "lastMinisterialAt",
+                "lastMinisterialErrors",
+                "lastMinisterialPassed",
+                "lastMinisterialPercentage",
+                "lastTheoryActivityAt",
+                "lastTheoryArgomentoId",
+                "lastTheoryTopicId",
+                "lastTheoryLessonId",
+                "updatedAt"
+              ])
+            || isValidOwnerDeviceUpdate()
+          )
+        );
+
+      allow delete:
+        if isAdmin();
+
+      match /examAttempts/{documentId} {
+        allow read, create:
+          if isOwner(userId) || isAdmin();
+
+        allow update, delete:
+          if isAdmin();
+      }
+
+      match /videoProgress/{videoId} {
+        allow read, create, update, delete:
+          if isOwner(userId) || isAdmin();
+      }
+
+      match /theoryProgress/{documentId} {
+        allow read, create, update, delete:
+          if isOwner(userId) || isAdmin();
+      }
+
+      match /topicProgress/{documentId} {
+        allow read, create, update, delete:
+          if isOwner(userId) || isAdmin();
+      }
+
+      match /wrongAnswers/{documentId} {
+        allow read, create, update, delete:
+          if isOwner(userId) || isAdmin();
+      }
+
+      match /quizDrafts/{documentId} {
+        allow read, create, update, delete:
+          if isOwner(userId) || isAdmin();
+      }
+
+      match /notificationTokens/{tokenId} {
+        allow read, create, update, delete:
+          if isOwner(userId) || isAdmin();
+      }
+
+      match /subtopicProgress/{progressId} {
+        allow read, create, update:
+          if isOwner(userId) || isAdmin();
+
+        allow delete:
+          if isAdmin();
+      }
+
+      match /progressiveProgress/{topicId} {
+        allow read, create, update:
+          if isOwner(userId) || isAdmin();
+
+        allow delete:
+          if isAdmin();
+      }
+    }
+
+    match /questions/{questionId} {
+      allow read:
+        if isAdmin()
+        || (
+          isSignedIn()
+          && isPublishedDocument()
+        );
+
+      allow create, update, delete:
+        if isAdmin();
+    }
+
+    match /theoryLessons/{lessonId} {
+      allow read:
+        if isAdmin()
+        || canReadPublishedTheoryLesson();
+
+      allow create, update, delete:
+        if isAdmin();
+    }
+
+    match /theoryVideos/{videoId} {
+      allow read:
+        if isAdmin()
+        || (
+          isSignedIn()
+          && isPublishedDocument()
+        );
+
+      allow create, update, delete:
+        if isAdmin();
+    }
+
+    match /subtopicAccess/{subtopicId} {
+      allow read:
+        if isSignedIn();
+
+      allow create:
+        if isAdmin()
+        && request.resource.data.subtopicId == subtopicId
+        && isValidSubtopicAccessLevel()
+        && request.resource.data
+          .keys()
+          .hasOnly([
+            "subtopicId",
+            "accessLevel",
+            "updatedBy",
+            "updatedAt"
+          ])
+        && request.resource.data.updatedBy ==
+          request.auth.uid;
+
+      allow update:
+        if isAdmin()
+        && request.resource.data.subtopicId == subtopicId
+        && resource.data.subtopicId == subtopicId
+        && isValidSubtopicAccessLevel()
+        && request.resource.data
+          .keys()
+          .hasOnly([
+            "subtopicId",
+            "accessLevel",
+            "updatedBy",
+            "updatedAt"
+          ])
+        && request.resource.data.updatedBy ==
+          request.auth.uid;
+
+      allow delete:
+        if isAdmin();
+    }
+
+    match /{document=**} {
+      allow read, write:
+        if false;
+    }
+  }
+}
