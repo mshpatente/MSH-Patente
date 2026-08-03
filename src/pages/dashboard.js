@@ -572,6 +572,73 @@ export function showDashboard(
             Video YouTube
           </small>
         </button>
+
+<button
+  id="openAdminProductionDashboardButton"
+  class="
+    compact-study-tile
+    compact-admin-tile
+    compact-admin-production-tile
+  "
+  type="button"
+>
+  <span class="compact-study-icon">
+    🏭
+  </span>
+
+  <strong>
+    Production Dashboard
+  </strong>
+
+  <small>
+    Domande, lezioni e pubblicazioni
+  </small>
+</button>
+
+        <button
+          id="openAdminKnowledgeEngineButton"
+          class="
+            compact-study-tile
+            compact-admin-tile
+            compact-admin-knowledge-tile
+          "
+          type="button"
+        >
+          <span class="compact-study-icon">
+            🧠
+          </span>
+
+          <strong>
+            Knowledge Engine
+          </strong>
+
+          <small>
+            Concetti e bozze lezioni
+          </small>
+        </button>
+
+        <button
+          id="openAdminReviewQueueButton"
+          class="
+            compact-study-tile
+            compact-admin-tile
+            compact-admin-review-tile
+          "
+          type="button"
+        >
+          <span class="compact-study-icon">
+            🛡️
+          </span>
+
+          <strong>
+            Coda revisione
+          </strong>
+
+          <small>
+            Domande ufficiali importate
+          </small>
+        </button>
+
 <button
   id="openAdminPremiumUsersButton"
   class="
@@ -848,6 +915,60 @@ initializeFounderFooter();
         "function"
       ) {
         actions.onOpenAdminVideos();
+      }
+    }
+  );
+
+  document
+  .querySelector(
+    "#openAdminProductionDashboardButton"
+  )
+  ?.addEventListener(
+    "click",
+    () => {
+      if (
+        typeof actions
+          .onOpenAdminProductionDashboard ===
+        "function"
+      ) {
+        actions
+          .onOpenAdminProductionDashboard();
+      }
+    }
+  );
+
+document
+  .querySelector(
+    "#openAdminKnowledgeEngineButton"
+  )
+  ?.addEventListener(
+    "click",
+    () => {
+      if (
+        typeof actions
+          .onOpenAdminKnowledgeEngine ===
+        "function"
+      ) {
+        actions
+          .onOpenAdminKnowledgeEngine();
+      }
+    }
+  );
+
+document
+  .querySelector(
+    "#openAdminReviewQueueButton"
+  )
+  ?.addEventListener(
+    "click",
+    () => {
+      if (
+        typeof actions
+          .onOpenAdminReviewQueue ===
+        "function"
+      ) {
+        actions
+          .onOpenAdminReviewQueue();
       }
     }
   );

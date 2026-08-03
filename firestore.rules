@@ -330,6 +330,21 @@ match /questionImportBatches/{batchId} {
     if isAdmin();
 }
 
+match /knowledgeConcepts/{conceptId} {
+  allow read, create, update, delete:
+    if isAdmin();
+}
+
+match /knowledgeLessonDrafts/{draftId} {
+  allow read, create, update, delete:
+    if isAdmin();
+}
+
+match /knowledgeLessonVersions/{versionId} {
+  allow read, create, update, delete:
+    if isAdmin();
+}
+
     match /{document=**} {
       allow read, write:
         if false;

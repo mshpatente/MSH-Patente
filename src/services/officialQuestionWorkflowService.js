@@ -1069,62 +1069,213 @@ export async function rejectOfficialQuestion({
     );
   }
 
-  await updateDoc(
+  const reviewReference =
     doc(
       db,
       REVIEW_QUEUE_COLLECTION,
       safeQuestionId
-    ),
-    {
-      status:
-        "rejected",
+    );
 
-      rejectionReason:
-        safeReason,
-
-      rejectedBy:
-        user.uid,
-
-      rejectedAt:
-        serverTimestamp(),
-
-      updatedBy:
-        user.uid,
-
-      updatedAt:
-        serverTimestamp()
-    }
-  );
-
-  await updateDoc(
+  const officialReference =
     doc(
       db,
       OFFICIAL_QUESTIONS_COLLECTION,
       safeQuestionId
-    ),
-    {
-      workflow: {
-        status:
-          "rejected",
+    );
 
-        needsAdminApproval:
-          true,
+  await runTransaction(
+    db,
+    async (
+      transaction
+    ) => {
+      const officialSnapshot =
+        await transaction.get(
+          officialReference
+        );
 
-        rejectionReason:
-          safeReason,
+      if (
+        !officialSnapshot.exists()
+      ) {
+        throw new Error(
+          "Domanda ufficiale non trovata."
+        );
+      }
 
-        rejectedBy:
-          user.uid,
+      const officialQuestion =
+        officialSnapshot.data() ||
+        {};
 
-        rejectedAt:
-          serverTimestamp()
-      },
+      transaction.set(
+        reviewReference,
+        {
+          status:
+            "rejected",
 
-      updatedBy:
-        user.uid,
+          rejectionReason:
+            safeReason,
 
-      updatedAt:
-        serverTimestamp()
+          rejectedBy:
+            user.uid,
+
+          rejectedAt:
+            serverTimestamp(),
+
+          updatedBy:
+            user.uid,
+
+          updatedAt:
+            serverTimestamp()
+        },
+        {
+          merge: true
+        }
+      );
+
+      transaction.set(
+        officialReference,
+        {
+          workflow: {
+            ...(
+              officialQuestion.workflow ||
+              {}
+            ),
+
+            status:
+              "rejected",
+
+            needsAdminApproval:
+              true,
+
+            rejectionReason:
+              safeReason,
+
+            rejectedBy:
+              user.uid,
+
+            rejectedAt:
+              serverTimestamp()
+          },
+
+          updatedBy:
+            user.uid,
+
+          updatedAt:
+            serverTimestamp()
+        },
+        {
+          merge: true
+        }
+      );
     }
   );
+
+  return {
+    questionId:
+      safeQuestionId,
+
+    status:
+      "rejected"
+  };
+}
+
+
+export async function resolveOfficialQuestionConflict({
+  user,
+  questionId,
+  resolutionType,
+  note
+}) {
+  await verifyAdmin(user);
+  const safeQuestionId = normalizeText(questionId);
+  const safeResolutionType = normalizeText(resolutionType);
+  const safeNote = normalizeText(note);
+  const allowed = ["keep_official", "use_imported", "merge_information"];
+  if (!safeQuestionId) throw new Error("Question ID mancante.");
+  if (!allowed.includes(safeResolutionType)) throw new Error("Tipo di risoluzione non valido.");
+  if (!safeNote) throw new Error("Inserisci una nota di risoluzione.");
+  const officialReference = doc(db, OFFICIAL_QUESTIONS_COLLECTION, safeQuestionId);
+  const reviewReference = doc(db, REVIEW_QUEUE_COLLECTION, safeQuestionId);
+  await runTransaction(db, async (transaction) => {
+    const officialSnapshot = await transaction.get(officialReference);
+    if (!officialSnapshot.exists()) throw new Error("Domanda ufficiale non trovata.");
+    const officialQuestion = officialSnapshot.data() || {};
+    if (officialQuestion.workflow?.status !== "blocked_conflict") throw new Error("Questa domanda non ha un conflitto attivo.");
+    const candidate = officialQuestion.conflictingCandidate;
+    if (!candidate) throw new Error("Candidato in conflitto non disponibile.");
+    let resolved = { ...officialQuestion };
+    if (safeResolutionType === "use_imported") {
+      resolved = {
+        ...officialQuestion,
+        officialText: normalizeText(candidate.officialText || officialQuestion.officialText),
+        correctAnswer: normalizeBoolean(candidate.correctAnswer),
+        sourceLinks: mergeSourceLinks(officialQuestion.sourceLinks, candidate.sourceLinks),
+        classification: {
+          ...(officialQuestion.classification || {}),
+          ...(candidate.classification || {}),
+          conceptIds: mergeConceptIds(officialQuestion.classification?.conceptIds, candidate.classification?.conceptIds)
+        }
+      };
+    } else if (safeResolutionType === "merge_information") {
+      resolved = {
+        ...officialQuestion,
+        sourceLinks: mergeSourceLinks(officialQuestion.sourceLinks, candidate.sourceLinks),
+        classification: {
+          ...(officialQuestion.classification || {}),
+          conceptIds: mergeConceptIds(officialQuestion.classification?.conceptIds, candidate.classification?.conceptIds)
+        }
+      };
+    }
+    const history = Array.isArray(officialQuestion.resolutionHistory) ? officialQuestion.resolutionHistory : [];
+    const resolutionRecord = {
+      resolutionType: safeResolutionType,
+      note: safeNote,
+      resolvedBy: user.uid,
+      resolvedAt: new Date(),
+      previousAnswer: normalizeBoolean(officialQuestion.correctAnswer),
+      importedAnswer: normalizeBoolean(candidate.correctAnswer),
+      previousText: normalizeText(officialQuestion.officialText),
+      importedText: normalizeText(candidate.officialText)
+    };
+    transaction.set(officialReference, {
+      ...resolved,
+      conflictingCandidate: null,
+      resolutionHistory: [...history, resolutionRecord],
+      workflow: {
+        ...(resolved.workflow || {}),
+        status: "pending_review",
+        needsAdminApproval: true,
+        conflictReasons: [],
+        resolvedBy: user.uid,
+        resolvedAt: serverTimestamp(),
+        resolutionType: safeResolutionType,
+        resolutionNote: safeNote
+      },
+      updatedBy: user.uid,
+      updatedAt: serverTimestamp()
+    }, { merge: true });
+    transaction.set(reviewReference, {
+      officialText: normalizeText(resolved.officialText),
+      correctAnswer: normalizeBoolean(resolved.correctAnswer),
+      sourceLinks: resolved.sourceLinks || [],
+      classification: resolved.classification || {},
+      status: "pending_review",
+      workflow: {
+        ...(resolved.workflow || {}),
+        status: "pending_review",
+        needsAdminApproval: true,
+        conflictReasons: [],
+        resolvedBy: user.uid,
+        resolvedAt: serverTimestamp(),
+        resolutionType: safeResolutionType,
+        resolutionNote: safeNote
+      },
+      resolutionType: safeResolutionType,
+      resolutionNote: safeNote,
+      resolvedBy: user.uid,
+      resolvedAt: serverTimestamp(),
+      updatedBy: user.uid,
+      updatedAt: serverTimestamp()
+    }, { merge: true });
+  });
+  return { questionId: safeQuestionId, status: "pending_review", resolutionType: safeResolutionType };
 }

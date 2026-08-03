@@ -1,0 +1,598 @@
+/* ==================================================
+   MSH KNOWLEDGE ENGINE — PHASE 6A
+   ================================================== */
+
+.admin-knowledge-shell {
+  display: grid;
+  gap: 20px;
+}
+
+.admin-knowledge-header {
+  display: flex;
+  gap: 20px;
+  align-items: flex-start;
+  justify-content: space-between;
+}
+
+.admin-knowledge-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.knowledge-toolbar {
+  display: flex;
+  gap: 14px;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.knowledge-toolbar input {
+  width: min(520px, 100%);
+  min-height: 44px;
+  padding: 0 14px;
+  border: 1px solid #cbd8ea;
+  border-radius: 12px;
+}
+
+.knowledge-toolbar span {
+  color: #64748b;
+  font-weight: 750;
+}
+
+.knowledge-concept-list {
+  display: grid;
+  grid-template-columns:
+    repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.knowledge-concept-card {
+  display: grid;
+  gap: 15px;
+  min-width: 0;
+  padding: 18px;
+  border: 1px solid #d8e2ef;
+  border-radius: 18px;
+  background: #ffffff;
+  box-shadow: 0 8px 28px rgb(15 23 42 / 5%);
+}
+
+.knowledge-concept-card > header,
+.knowledge-concept-card > footer {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.knowledge-concept-card h3 {
+  margin: 0;
+}
+
+.knowledge-status {
+  padding: 6px 10px;
+  border-radius: 999px;
+  color: #92400e;
+  background: #fef3c7;
+  font-size: 11px;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.knowledge-meta {
+  display: grid;
+  grid-template-columns:
+    repeat(4, minmax(0, 1fr));
+  gap: 9px;
+  margin: 0;
+}
+
+.knowledge-meta div {
+  min-width: 0;
+  padding: 10px;
+  border-radius: 11px;
+  background: #f6f8fc;
+}
+
+.knowledge-meta dt {
+  color: #64748b;
+  font-size: 10px;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.knowledge-meta dd {
+  margin: 5px 0 0;
+  overflow-wrap: anywhere;
+  font-size: 13px;
+  font-weight: 750;
+}
+
+.knowledge-keywords {
+  display: flex;
+  gap: 7px;
+  flex-wrap: wrap;
+}
+
+.knowledge-keywords span {
+  padding: 5px 9px;
+  border-radius: 999px;
+  color: #3730a3;
+  background: #eef2ff;
+  font-size: 11px;
+  font-weight: 750;
+}
+
+.knowledge-empty {
+  grid-column: 1 / -1;
+  display: grid;
+  min-height: 280px;
+  place-content: center;
+  justify-items: center;
+  text-align: center;
+}
+
+.knowledge-empty span {
+  font-size: 48px;
+}
+
+.compact-admin-knowledge-tile {
+  border-color: #a7f3d0;
+  background:
+    linear-gradient(
+      135deg,
+      #ecfdf5,
+      #d1fae5
+    );
+}
+
+@media (max-width: 900px) {
+  .admin-knowledge-header {
+    flex-direction: column;
+  }
+
+  .knowledge-concept-list {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 620px) {
+  .knowledge-toolbar {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .knowledge-meta {
+    grid-template-columns:
+      repeat(2, minmax(0, 1fr));
+  }
+
+  .knowledge-concept-card > footer {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .knowledge-concept-card > footer .btn {
+    width: 100%;
+  }
+}
+
+
+/* ==================================================
+   MSH KNOWLEDGE ENGINE — PHASE 6B
+   Concept details and lesson versions
+   ================================================== */
+
+.knowledge-concept-modal {
+  position: fixed;
+  z-index: 10020;
+  inset: 0;
+  display: grid;
+  padding: 24px;
+  place-items: center;
+}
+
+.knowledge-concept-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgb(15 23 42 / 65%);
+  backdrop-filter: blur(5px);
+}
+
+.knowledge-concept-dialog {
+  position: relative;
+  display: grid;
+  width: min(1180px, 100%);
+  height: calc(100dvh - 48px);
+  max-height: 940px;
+  grid-template-rows:
+    auto
+    minmax(0, 1fr);
+  overflow: hidden;
+  border-radius: 24px;
+  background: #ffffff;
+  box-shadow: 0 32px 100px rgb(15 23 42 / 35%);
+}
+
+.knowledge-concept-dialog-header {
+  display: flex;
+  gap: 20px;
+  padding: 22px 24px;
+  align-items: flex-start;
+  justify-content: space-between;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.knowledge-concept-dialog-header h2 {
+  margin: 0 0 6px;
+}
+
+.knowledge-concept-dialog-header p:not(.eyebrow) {
+  margin: 0;
+  color: #64748b;
+}
+
+.knowledge-concept-close {
+  display: grid;
+  width: 42px;
+  height: 42px;
+  flex: 0 0 auto;
+  place-items: center;
+  border: 0;
+  border-radius: 12px;
+  color: #475569;
+  background: #f1f5f9;
+  font-size: 28px;
+}
+
+.knowledge-concept-dialog-body {
+  display: grid;
+  gap: 18px;
+  min-height: 0;
+  padding: 22px 24px 30px;
+  overflow-y: auto;
+}
+
+.knowledge-concept-overview {
+  display: grid;
+  grid-template-columns:
+    repeat(4, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.knowledge-concept-overview article {
+  padding: 15px;
+  border: 1px solid #dbe3ef;
+  border-radius: 14px;
+  text-align: center;
+  background: #ffffff;
+}
+
+.knowledge-concept-overview strong {
+  display: block;
+  font-size: 23px;
+}
+
+.knowledge-concept-overview span {
+  color: #64748b;
+  font-size: 12px;
+  font-weight: 750;
+}
+
+.knowledge-concept-tags {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.knowledge-concept-tags span {
+  padding: 6px 10px;
+  border-radius: 999px;
+  color: #3730a3;
+  background: #eef2ff;
+  font-size: 12px;
+  font-weight: 750;
+}
+
+.knowledge-draft-form {
+  display: grid;
+  gap: 16px;
+}
+
+.knowledge-draft-grid {
+  display: grid;
+  grid-template-columns:
+    repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.knowledge-draft-grid textarea {
+  min-height: 430px;
+  font-family:
+    "SFMono-Regular",
+    Consolas,
+    monospace;
+  line-height: 1.55;
+  resize: vertical;
+}
+
+.knowledge-draft-actions {
+  position: sticky;
+  bottom: -22px;
+  display: flex;
+  gap: 10px;
+  padding: 12px;
+  justify-content: flex-end;
+  border: 1px solid #dbe3ef;
+  border-radius: 15px;
+  background: rgb(255 255 255 / 96%);
+  backdrop-filter: blur(10px);
+}
+
+.knowledge-version-panel {
+  display: grid;
+  gap: 12px;
+  padding-top: 4px;
+}
+
+.knowledge-version-panel h3 {
+  margin: 0;
+}
+
+.knowledge-version-list {
+  display: grid;
+  gap: 9px;
+}
+
+.knowledge-version-item {
+  display: flex;
+  gap: 12px;
+  padding: 12px 14px;
+  align-items: center;
+  justify-content: space-between;
+  border: 1px solid #dbe3ef;
+  border-radius: 12px;
+  background: #f8fafc;
+}
+
+.knowledge-version-item > div {
+  display: grid;
+  gap: 3px;
+}
+
+.knowledge-version-item small {
+  color: #64748b;
+}
+
+.knowledge-version-item > span {
+  padding: 5px 9px;
+  border-radius: 999px;
+  color: #166534;
+  background: #dcfce7;
+  font-size: 11px;
+  font-weight: 850;
+}
+
+.knowledge-version-empty {
+  margin: 0;
+  color: #64748b;
+}
+
+@media (max-width: 900px) {
+  .knowledge-concept-overview,
+  .knowledge-draft-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .knowledge-draft-grid textarea {
+    min-height: 300px;
+  }
+}
+
+@media (max-width: 620px) {
+  .knowledge-concept-modal {
+    padding: 0;
+  }
+
+  .knowledge-concept-dialog {
+    width: 100%;
+    height: 100dvh;
+    max-height: none;
+    border-radius: 0;
+  }
+
+  .knowledge-concept-overview {
+    grid-template-columns:
+      repeat(2, minmax(0, 1fr));
+  }
+
+  .knowledge-draft-actions {
+    flex-direction: column-reverse;
+  }
+
+  .knowledge-draft-actions .btn {
+    width: 100%;
+  }
+
+  .knowledge-concept-dialog-header,
+  .knowledge-concept-dialog-body {
+    padding-left: 18px;
+    padding-right: 18px;
+  }
+}
+
+
+/* ==================================================
+   MSH KNOWLEDGE ENGINE — PHASE 6C
+   Lesson review and publishing
+   ================================================== */
+
+.knowledge-publish-button {
+  border-color: #15803d;
+  background: #15803d;
+}
+
+.knowledge-publish-button:hover {
+  background: #166534;
+}
+
+.knowledge-preview-modal {
+  position: fixed;
+  z-index: 10040;
+  inset: 0;
+  display: grid;
+  padding: 24px;
+  place-items: center;
+}
+
+.knowledge-preview-dialog {
+  position: relative;
+  display: grid;
+  width: min(980px, 100%);
+  max-height: calc(100dvh - 48px);
+  grid-template-rows:
+    auto
+    minmax(0, 1fr);
+  overflow: hidden;
+  border-radius: 22px;
+  background: #ffffff;
+  box-shadow: 0 32px 100px rgb(15 23 42 / 40%);
+}
+
+.knowledge-preview-dialog > header {
+  display: flex;
+  gap: 20px;
+  padding: 20px 22px;
+  align-items: flex-start;
+  justify-content: space-between;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.knowledge-preview-dialog h2 {
+  margin: 0;
+}
+
+.knowledge-preview-body {
+  display: grid;
+  gap: 16px;
+  min-height: 0;
+  padding: 20px 22px 28px;
+  overflow-y: auto;
+}
+
+.knowledge-preview-warning {
+  padding: 12px 14px;
+  border: 1px solid #fbbf24;
+  border-radius: 12px;
+  color: #92400e;
+  background: #fffbeb;
+}
+
+.knowledge-preview-lesson {
+  display: grid;
+  gap: 14px;
+  padding: 20px;
+  border: 1px solid #dbe3ef;
+  border-radius: 16px;
+  background: #ffffff;
+}
+
+.knowledge-preview-summary {
+  margin: 0;
+  color: #475569;
+  font-size: 16px;
+  line-height: 1.6;
+}
+
+.knowledge-preview-lesson h3 {
+  margin: 8px 0 0;
+}
+
+.knowledge-preview-lesson pre {
+  margin: 0;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  font: inherit;
+  line-height: 1.65;
+}
+
+@media (max-width: 700px) {
+  .knowledge-preview-modal {
+    padding: 0;
+  }
+
+  .knowledge-preview-dialog {
+    width: 100%;
+    max-height: 100dvh;
+    border-radius: 0;
+  }
+}
+
+
+/* ==================================================
+   MSH KNOWLEDGE ENGINE — PHASE 6D
+   Version publishing and unpublish controls
+   ================================================== */
+
+.knowledge-version-actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.knowledge-version-actions .btn {
+  min-height: 34px;
+  padding: 7px 11px;
+  font-size: 12px;
+}
+
+.knowledge-version-published {
+  padding: 6px 10px;
+  border-radius: 999px;
+  color: #166534;
+  background: #dcfce7;
+  font-size: 11px;
+  font-weight: 900;
+}
+
+.knowledge-unpublish-button {
+  border-color: #dc2626;
+  color: #991b1b;
+  background: #fff1f2;
+}
+
+.knowledge-unpublish-button:hover {
+  color: #ffffff;
+  background: #dc2626;
+}
+
+.knowledge-status {
+  white-space: nowrap;
+}
+
+.knowledge-status[data-status="published"] {
+  color: #166534;
+  background: #dcfce7;
+}
+
+.knowledge-status[data-status="updated"] {
+  color: #1d4ed8;
+  background: #dbeafe;
+}
+
+@media (max-width: 620px) {
+  .knowledge-version-item {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .knowledge-version-actions {
+    width: 100%;
+  }
+
+  .knowledge-version-actions .btn {
+    flex: 1 1 auto;
+  }
+}

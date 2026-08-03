@@ -8,6 +8,9 @@ import "./result-v2.css";
 import "./theory-v2.css";
 import "./dictionary-page.css";
 import "./profile-premium.css";
+import "./admin-review-queue.css";
+import "./admin-knowledge-engine.css";
+import "./admin-production-dashboard.css";
 import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
@@ -946,6 +949,26 @@ await loadQuizQuestions();
     user
   );
 },
+
+    onOpenAdminReviewQueue: () => {
+      openAdminReviewQueuePage(
+        user
+      );
+    },
+
+
+    onOpenAdminKnowledgeEngine: () => {
+      openAdminKnowledgeEnginePage(
+        user
+      );
+    },
+
+    onOpenAdminProductionDashboard: () => {
+  openAdminProductionDashboardPage(
+    user
+  );
+},
+
 
     onLogout: async () => {
       await signOut(auth);
@@ -2115,6 +2138,250 @@ async function openVideoLessonsPage(
     );
   }
 }
+
+async function openAdminProductionDashboardPage(
+  user
+) {
+  showLoading(
+    "Caricamento della produzione..."
+  );
+
+  try {
+    const [
+      productionModule,
+      userReference
+    ] = await Promise.all([
+      import(
+        "./pages/adminProductionDashboard.js"
+      ),
+      ensureUserDocument(
+        user
+      )
+    ]);
+
+    const userSnapshot =
+      await getDoc(
+        userReference
+      );
+
+    const userData =
+      userSnapshot.data() ||
+      {};
+
+    if (
+      userData.role !== "admin"
+    ) {
+      showErrorPage(
+        "Questa area è riservata agli amministratori.",
+        () => {
+          loadDashboard(
+            user
+          );
+        }
+      );
+
+      return;
+    }
+
+    await productionModule
+      .showAdminProductionDashboard({
+        container:
+          app,
+
+        user,
+
+        onBack: () => {
+          loadDashboard(
+            user
+          );
+        },
+
+        onOpenReviewQueue: () => {
+          openAdminReviewQueuePage(
+            user
+          );
+        },
+
+        onOpenKnowledgeEngine: () => {
+          openAdminKnowledgeEnginePage(
+            user
+          );
+        }
+      });
+  } catch (error) {
+    console.error(
+      "Production Dashboard opening error:",
+      error
+    );
+
+    showErrorPage(
+      "Non è stato possibile aprire il Production Dashboard.",
+      () => {
+        loadDashboard(
+          user
+        );
+      }
+    );
+  }
+}
+
+async function openAdminKnowledgeEnginePage(
+  user
+) {
+  showLoading(
+    "Caricamento del Knowledge Engine..."
+  );
+
+  try {
+    const [
+      knowledgeModule,
+      userReference
+    ] = await Promise.all([
+      import(
+        "./pages/adminKnowledgeEngine.js"
+      ),
+      ensureUserDocument(
+        user
+      )
+    ]);
+
+    const userSnapshot =
+      await getDoc(
+        userReference
+      );
+
+    const userData =
+      userSnapshot.data() ||
+      {};
+
+    if (
+      userData.role !== "admin"
+    ) {
+      showErrorPage(
+        "Questa area è riservata agli amministratori.",
+        () =>
+          loadDashboard(
+            user
+          )
+      );
+
+      return;
+    }
+
+    await knowledgeModule
+      .showAdminKnowledgeEngine({
+        container:
+          app,
+
+        user,
+
+        onBack: () => {
+          loadDashboard(
+            user
+          );
+        },
+
+        onOpenReviewQueue: () => {
+          openAdminReviewQueuePage(
+            user
+          );
+        }
+      });
+  } catch (error) {
+    console.error(
+      "Knowledge Engine opening error:",
+      error
+    );
+
+    showErrorPage(
+      "Non è stato possibile aprire il Knowledge Engine.",
+      () =>
+        loadDashboard(
+          user
+        )
+    );
+  }
+}
+
+
+async function openAdminReviewQueuePage(
+  user
+) {
+  showLoading(
+    "Caricamento della coda di revisione..."
+  );
+
+  try {
+    const [
+      reviewQueueModule,
+      userReference
+    ] = await Promise.all([
+      import(
+        "./pages/adminReviewQueue.js"
+      ),
+      ensureUserDocument(user)
+    ]);
+
+    const userSnapshot =
+      await getDoc(
+        userReference
+      );
+
+    const userData =
+      userSnapshot.data() || {};
+
+    if (
+      userData.role !== "admin"
+    ) {
+      showErrorPage(
+        "Questa area è riservata agli amministratori.",
+        () =>
+          loadDashboard(
+            user
+          )
+      );
+
+      return;
+    }
+
+    const {
+      showAdminReviewQueue
+    } = reviewQueueModule;
+
+    await showAdminReviewQueue({
+      container:
+        app,
+
+      user,
+
+      onBack: () => {
+        loadDashboard(
+          user
+        );
+      },
+
+      onOpenQuestionManager: () => {
+        openAdminQuestionsPage(
+          user
+        );
+      }
+    });
+  } catch (error) {
+    console.error(
+      "Admin review queue opening error:",
+      error
+    );
+
+    showErrorPage(
+      "Non è stato possibile aprire la coda di revisione.",
+      () =>
+        loadDashboard(
+          user
+        )
+    );
+  }
+}
+
 
 async function openAdminQuestionsPage(
   user
