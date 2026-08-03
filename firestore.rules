@@ -315,6 +315,20 @@ service cloud.firestore {
       allow delete:
         if isAdmin();
     }
+match /officialQuestions/{questionId} {
+  allow read, create, update, delete:
+    if isAdmin();
+}
+
+match /questionReviewQueue/{questionId} {
+  allow read, create, update, delete:
+    if isAdmin();
+}
+
+match /questionImportBatches/{batchId} {
+  allow read, create, update, delete:
+    if isAdmin();
+}
 
     match /{document=**} {
       allow read, write:

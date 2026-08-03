@@ -1,0 +1,88 @@
+[
+  {
+    "officialText": "La strada può essere suddivisa in carreggiate",
+    "correctAnswer": true,
+    "source": {
+      "sourceType": "PDF",
+      "sourceName": "Listato A e B",
+      "sourceVersion": "2025-02-27",
+      "sourcePage": 10,
+      "officialChapter": "LA STRADA",
+      "officialTopic": "Strada",
+      "officialBlockId": "11012",
+      "officialGroup": "VERO",
+      "officialOrder": 1,
+      "argomentoId": "la-strada",
+      "topicId": "definizioni-stradali",
+      "subtopicId": "strada"
+    },
+    "classification": {
+      "conceptIds": [
+        "strada",
+        "carreggiata",
+        "parte-tutto"
+      ]
+    },
+    "workflow": {
+      "status": "pending_review",
+      "confidence": 1
+    }
+  },
+  {
+    "officialText": "La strada può comprendere le piste ciclabili",
+    "correctAnswer": true,
+    "source": {
+      "sourceType": "PDF",
+      "sourceName": "Listato A e B",
+      "sourceVersion": "2025-02-27",
+      "sourcePage": 10,
+      "officialChapter": "LA STRADA",
+      "officialTopic": "Strada",
+      "officialBlockId": "11012",
+      "officialGroup": "VERO",
+      "officialOrder": 2,
+      "argomentoId": "la-strada",
+      "topicId": "definizioni-stradali",
+      "subtopicId": "strada"
+    },
+    "classification": {
+      "conceptIds": [
+        "strada",
+        "pista-ciclabile"
+      ]
+    },
+    "workflow": {
+      "status": "pending_review",
+      "confidence": 1
+    }
+  },
+  {
+    "officialText": "La strada non comprende le banchine",
+    "correctAnswer": false,
+    "source": {
+      "sourceType": "PDF",
+      "sourceName": "Listato A e B",
+      "sourceVersion": "2025-02-27",
+      "sourcePage": 10,
+      "officialChapter": "LA STRADA",
+      "officialTopic": "Strada",
+      "officialBlockId": "11012",
+      "officialGroup": "FALSO",
+      "officialOrder": 1,
+      "argomentoId": "la-strada",
+      "topicId": "definizioni-stradali",
+      "subtopicId": "strada"
+    },
+    "classification": {
+      "conceptIds": [
+        "strada",
+        "banchina",
+        "parte-tutto"
+      ]
+    },
+    "workflow": {
+      "status": "pending_review",
+      "confidence": 1
+    }
+  }
+]

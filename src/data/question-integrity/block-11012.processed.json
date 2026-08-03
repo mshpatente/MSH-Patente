@@ -1,0 +1,191 @@
+[
+  {
+    "questionId": "official-fd092782",
+    "exactKey": "La strada può essere suddivisa in carreggiate",
+    "officialText": "La strada può essere suddivisa in carreggiate",
+    "correctAnswer": true,
+    "sourceLinks": [
+      {
+        "sourceType": "PDF",
+        "sourceName": "Listato A e B",
+        "sourceVersion": "2025-02-27",
+        "sourcePage": 10,
+        "argomentoId": "la-strada",
+        "topicId": "definizioni-stradali",
+        "subtopicId": "strada",
+        "officialChapter": "LA STRADA",
+        "officialTopic": "Strada",
+        "officialBlockId": "11012",
+        "officialGroup": "VERO",
+        "officialOrder": 1
+      },
+      {
+        "sourceType": "PDF",
+        "sourceName": "Listato A e B",
+        "sourceVersion": "2025-02-27",
+        "sourcePage": 999,
+        "argomentoId": "la-strada",
+        "topicId": "definizioni-stradali",
+        "subtopicId": "strada",
+        "officialChapter": "LA STRADA",
+        "officialTopic": "Strada",
+        "officialBlockId": "11012",
+        "officialGroup": "VERO",
+        "officialOrder": 1
+      }
+    ],
+    "classification": {
+      "argomentoId": "la-strada",
+      "topicId": "definizioni-stradali",
+      "subtopicId": "strada",
+      "conceptIds": [
+        "strada",
+        "carreggiata",
+        "parte-tutto"
+      ]
+    },
+    "explanation": {
+      "it": "",
+      "bn": "",
+      "decisiveWords": [],
+      "misconception": ""
+    },
+    "workflow": {
+      "status": "pending_review",
+      "confidence": 1,
+      "needsAdminApproval": true,
+      "conflictReasons": []
+    }
+  },
+  {
+    "questionId": "official-66454e0e",
+    "exactKey": "La strada può comprendere le piste ciclabili",
+    "officialText": "La strada può comprendere le piste ciclabili",
+    "correctAnswer": true,
+    "sourceLinks": [
+      {
+        "sourceType": "PDF",
+        "sourceName": "Listato A e B",
+        "sourceVersion": "2025-02-27",
+        "sourcePage": 10,
+        "argomentoId": "la-strada",
+        "topicId": "definizioni-stradali",
+        "subtopicId": "strada",
+        "officialChapter": "LA STRADA",
+        "officialTopic": "Strada",
+        "officialBlockId": "11012",
+        "officialGroup": "VERO",
+        "officialOrder": 2
+      }
+    ],
+    "classification": {
+      "argomentoId": "la-strada",
+      "topicId": "definizioni-stradali",
+      "subtopicId": "strada",
+      "conceptIds": [
+        "strada",
+        "pista-ciclabile"
+      ]
+    },
+    "explanation": {
+      "it": "",
+      "bn": "",
+      "decisiveWords": [],
+      "misconception": ""
+    },
+    "workflow": {
+      "status": "pending_review",
+      "confidence": 1,
+      "needsAdminApproval": true,
+      "conflictReasons": []
+    }
+  },
+  {
+    "questionId": "official-16718f72",
+    "exactKey": "La strada non comprende le banchine",
+    "officialText": "La strada non comprende le banchine",
+    "correctAnswer": false,
+    "sourceLinks": [
+      {
+        "sourceType": "PDF",
+        "sourceName": "Listato A e B",
+        "sourceVersion": "2025-02-27",
+        "sourcePage": 10,
+        "argomentoId": "la-strada",
+        "topicId": "definizioni-stradali",
+        "subtopicId": "strada",
+        "officialChapter": "LA STRADA",
+        "officialTopic": "Strada",
+        "officialBlockId": "11012",
+        "officialGroup": "FALSO",
+        "officialOrder": 1
+      }
+    ],
+    "classification": {
+      "argomentoId": "la-strada",
+      "topicId": "definizioni-stradali",
+      "subtopicId": "strada",
+      "conceptIds": [
+        "strada",
+        "banchina",
+        "parte-tutto"
+      ]
+    },
+    "explanation": {
+      "it": "",
+      "bn": "",
+      "decisiveWords": [],
+      "misconception": ""
+    },
+    "workflow": {
+      "status": "pending_review",
+      "confidence": 1,
+      "needsAdminApproval": true,
+      "conflictReasons": []
+    }
+  },
+  {
+    "questionId": "official-27b8e413",
+    "exactKey": "La carreggiata è una parte della strada",
+    "officialText": "La carreggiata è una parte della strada",
+    "correctAnswer": true,
+    "sourceLinks": [
+      {
+        "sourceType": "PDF",
+        "sourceName": "Listato A e B",
+        "sourceVersion": "2025-02-27",
+        "sourcePage": 10,
+        "argomentoId": "la-strada",
+        "topicId": "definizioni-stradali",
+        "subtopicId": "strada",
+        "officialChapter": "LA STRADA",
+        "officialTopic": "Strada",
+        "officialBlockId": "11012",
+        "officialGroup": "VERO",
+        "officialOrder": 99
+      }
+    ],
+    "classification": {
+      "argomentoId": "la-strada",
+      "topicId": "definizioni-stradali",
+      "subtopicId": "strada",
+      "conceptIds": [
+        "strada",
+        "carreggiata",
+        "parte-tutto"
+      ]
+    },
+    "explanation": {
+      "it": "",
+      "bn": "",
+      "decisiveWords": [],
+      "misconception": ""
+    },
+    "workflow": {
+      "status": "pending_review",
+      "confidence": 1,
+      "needsAdminApproval": true,
+      "conflictReasons": []
+    }
+  }
+]

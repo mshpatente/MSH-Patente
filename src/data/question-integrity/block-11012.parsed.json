@@ -1,0 +1,402 @@
+[
+  {
+    "questionId": "official-fd092782",
+    "exactKey": "La strada può essere suddivisa in carreggiate",
+    "officialText": "La strada può essere suddivisa in carreggiate",
+    "correctAnswer": true,
+    "sourceLinks": [
+      {
+        "sourceType": "PDF_SCREENSHOT",
+        "sourceName": "Listato A e B",
+        "sourceVersion": "2025-02-27",
+        "sourcePage": 10,
+        "argomentoId": "la-strada",
+        "topicId": "definizioni-stradali",
+        "subtopicId": "strada",
+        "officialChapter": "LA STRADA",
+        "officialTopic": "DEFINIZIONI STRADALI E DI TRAFFICO",
+        "officialBlockId": "11012",
+        "officialGroup": "VERO",
+        "officialOrder": 1
+      }
+    ],
+    "classification": {
+      "argomentoId": "la-strada",
+      "topicId": "definizioni-stradali",
+      "subtopicId": "strada",
+      "conceptIds": []
+    },
+    "explanation": {
+      "it": "",
+      "bn": "",
+      "decisiveWords": [],
+      "misconception": ""
+    },
+    "workflow": {
+      "status": "pending_review",
+      "confidence": 1,
+      "needsAdminApproval": true,
+      "conflictReasons": []
+    }
+  },
+  {
+    "questionId": "official-66454e0e",
+    "exactKey": "La strada può comprendere le piste ciclabili",
+    "officialText": "La strada può comprendere le piste ciclabili",
+    "correctAnswer": true,
+    "sourceLinks": [
+      {
+        "sourceType": "PDF_SCREENSHOT",
+        "sourceName": "Listato A e B",
+        "sourceVersion": "2025-02-27",
+        "sourcePage": 10,
+        "argomentoId": "la-strada",
+        "topicId": "definizioni-stradali",
+        "subtopicId": "strada",
+        "officialChapter": "LA STRADA",
+        "officialTopic": "DEFINIZIONI STRADALI E DI TRAFFICO",
+        "officialBlockId": "11012",
+        "officialGroup": "VERO",
+        "officialOrder": 2
+      }
+    ],
+    "classification": {
+      "argomentoId": "la-strada",
+      "topicId": "definizioni-stradali",
+      "subtopicId": "strada",
+      "conceptIds": []
+    },
+    "explanation": {
+      "it": "",
+      "bn": "",
+      "decisiveWords": [],
+      "misconception": ""
+    },
+    "workflow": {
+      "status": "pending_review",
+      "confidence": 1,
+      "needsAdminApproval": true,
+      "conflictReasons": []
+    }
+  },
+  {
+    "questionId": "official-eaba22a9",
+    "exactKey": "La strada può essere a senso unico di circolazione",
+    "officialText": "La strada può essere a senso unico di circolazione",
+    "correctAnswer": true,
+    "sourceLinks": [
+      {
+        "sourceType": "PDF_SCREENSHOT",
+        "sourceName": "Listato A e B",
+        "sourceVersion": "2025-02-27",
+        "sourcePage": 10,
+        "argomentoId": "la-strada",
+        "topicId": "definizioni-stradali",
+        "subtopicId": "strada",
+        "officialChapter": "LA STRADA",
+        "officialTopic": "DEFINIZIONI STRADALI E DI TRAFFICO",
+        "officialBlockId": "11012",
+        "officialGroup": "VERO",
+        "officialOrder": 3
+      }
+    ],
+    "classification": {
+      "argomentoId": "la-strada",
+      "topicId": "definizioni-stradali",
+      "subtopicId": "strada",
+      "conceptIds": []
+    },
+    "explanation": {
+      "it": "",
+      "bn": "",
+      "decisiveWords": [],
+      "misconception": ""
+    },
+    "workflow": {
+      "status": "pending_review",
+      "confidence": 1,
+      "needsAdminApproval": true,
+      "conflictReasons": []
+    }
+  },
+  {
+    "questionId": "official-24027c3c",
+    "exactKey": "La strada può essere a doppio senso di circolazione",
+    "officialText": "La strada può essere a doppio senso di circolazione",
+    "correctAnswer": true,
+    "sourceLinks": [
+      {
+        "sourceType": "PDF_SCREENSHOT",
+        "sourceName": "Listato A e B",
+        "sourceVersion": "2025-02-27",
+        "sourcePage": 10,
+        "argomentoId": "la-strada",
+        "topicId": "definizioni-stradali",
+        "subtopicId": "strada",
+        "officialChapter": "LA STRADA",
+        "officialTopic": "DEFINIZIONI STRADALI E DI TRAFFICO",
+        "officialBlockId": "11012",
+        "officialGroup": "VERO",
+        "officialOrder": 4
+      }
+    ],
+    "classification": {
+      "argomentoId": "la-strada",
+      "topicId": "definizioni-stradali",
+      "subtopicId": "strada",
+      "conceptIds": []
+    },
+    "explanation": {
+      "it": "",
+      "bn": "",
+      "decisiveWords": [],
+      "misconception": ""
+    },
+    "workflow": {
+      "status": "pending_review",
+      "confidence": 1,
+      "needsAdminApproval": true,
+      "conflictReasons": []
+    }
+  },
+  {
+    "questionId": "official-000254c3",
+    "exactKey": "La strada è aperta alla circolazione dei pedoni, degli animali e dei veicoli",
+    "officialText": "La strada è aperta alla circolazione dei pedoni, degli animali e dei veicoli",
+    "correctAnswer": true,
+    "sourceLinks": [
+      {
+        "sourceType": "PDF_SCREENSHOT",
+        "sourceName": "Listato A e B",
+        "sourceVersion": "2025-02-27",
+        "sourcePage": 10,
+        "argomentoId": "la-strada",
+        "topicId": "definizioni-stradali",
+        "subtopicId": "strada",
+        "officialChapter": "LA STRADA",
+        "officialTopic": "DEFINIZIONI STRADALI E DI TRAFFICO",
+        "officialBlockId": "11012",
+        "officialGroup": "VERO",
+        "officialOrder": 5
+      }
+    ],
+    "classification": {
+      "argomentoId": "la-strada",
+      "topicId": "definizioni-stradali",
+      "subtopicId": "strada",
+      "conceptIds": []
+    },
+    "explanation": {
+      "it": "",
+      "bn": "",
+      "decisiveWords": [],
+      "misconception": ""
+    },
+    "workflow": {
+      "status": "pending_review",
+      "confidence": 1,
+      "needsAdminApproval": true,
+      "conflictReasons": []
+    }
+  },
+  {
+    "questionId": "official-16718f72",
+    "exactKey": "La strada non comprende le banchine",
+    "officialText": "La strada non comprende le banchine",
+    "correctAnswer": false,
+    "sourceLinks": [
+      {
+        "sourceType": "PDF_SCREENSHOT",
+        "sourceName": "Listato A e B",
+        "sourceVersion": "2025-02-27",
+        "sourcePage": 10,
+        "argomentoId": "la-strada",
+        "topicId": "definizioni-stradali",
+        "subtopicId": "strada",
+        "officialChapter": "LA STRADA",
+        "officialTopic": "DEFINIZIONI STRADALI E DI TRAFFICO",
+        "officialBlockId": "11012",
+        "officialGroup": "FALSO",
+        "officialOrder": 1
+      }
+    ],
+    "classification": {
+      "argomentoId": "la-strada",
+      "topicId": "definizioni-stradali",
+      "subtopicId": "strada",
+      "conceptIds": []
+    },
+    "explanation": {
+      "it": "",
+      "bn": "",
+      "decisiveWords": [],
+      "misconception": ""
+    },
+    "workflow": {
+      "status": "pending_review",
+      "confidence": 1,
+      "needsAdminApproval": true,
+      "conflictReasons": []
+    }
+  },
+  {
+    "questionId": "official-06eec9b1",
+    "exactKey": "La strada è riservata alla circolazione dei soli autoveicoli e motocicli",
+    "officialText": "La strada è riservata alla circolazione dei soli autoveicoli e motocicli",
+    "correctAnswer": false,
+    "sourceLinks": [
+      {
+        "sourceType": "PDF_SCREENSHOT",
+        "sourceName": "Listato A e B",
+        "sourceVersion": "2025-02-27",
+        "sourcePage": 10,
+        "argomentoId": "la-strada",
+        "topicId": "definizioni-stradali",
+        "subtopicId": "strada",
+        "officialChapter": "LA STRADA",
+        "officialTopic": "DEFINIZIONI STRADALI E DI TRAFFICO",
+        "officialBlockId": "11012",
+        "officialGroup": "FALSO",
+        "officialOrder": 2
+      }
+    ],
+    "classification": {
+      "argomentoId": "la-strada",
+      "topicId": "definizioni-stradali",
+      "subtopicId": "strada",
+      "conceptIds": []
+    },
+    "explanation": {
+      "it": "",
+      "bn": "",
+      "decisiveWords": [],
+      "misconception": ""
+    },
+    "workflow": {
+      "status": "pending_review",
+      "confidence": 1,
+      "needsAdminApproval": true,
+      "conflictReasons": []
+    }
+  },
+  {
+    "questionId": "official-aec27dc4",
+    "exactKey": "La strada è normalmente riservata alla circolazione dei soli veicoli e animali",
+    "officialText": "La strada è normalmente riservata alla circolazione dei soli veicoli e animali",
+    "correctAnswer": false,
+    "sourceLinks": [
+      {
+        "sourceType": "PDF_SCREENSHOT",
+        "sourceName": "Listato A e B",
+        "sourceVersion": "2025-02-27",
+        "sourcePage": 10,
+        "argomentoId": "la-strada",
+        "topicId": "definizioni-stradali",
+        "subtopicId": "strada",
+        "officialChapter": "LA STRADA",
+        "officialTopic": "DEFINIZIONI STRADALI E DI TRAFFICO",
+        "officialBlockId": "11012",
+        "officialGroup": "FALSO",
+        "officialOrder": 3
+      }
+    ],
+    "classification": {
+      "argomentoId": "la-strada",
+      "topicId": "definizioni-stradali",
+      "subtopicId": "strada",
+      "conceptIds": []
+    },
+    "explanation": {
+      "it": "",
+      "bn": "",
+      "decisiveWords": [],
+      "misconception": ""
+    },
+    "workflow": {
+      "status": "pending_review",
+      "confidence": 1,
+      "needsAdminApproval": true,
+      "conflictReasons": []
+    }
+  },
+  {
+    "questionId": "official-529cf280",
+    "exactKey": "La strada non comprende i marciapiedi",
+    "officialText": "La strada non comprende i marciapiedi",
+    "correctAnswer": false,
+    "sourceLinks": [
+      {
+        "sourceType": "PDF_SCREENSHOT",
+        "sourceName": "Listato A e B",
+        "sourceVersion": "2025-02-27",
+        "sourcePage": 10,
+        "argomentoId": "la-strada",
+        "topicId": "definizioni-stradali",
+        "subtopicId": "strada",
+        "officialChapter": "LA STRADA",
+        "officialTopic": "DEFINIZIONI STRADALI E DI TRAFFICO",
+        "officialBlockId": "11012",
+        "officialGroup": "FALSO",
+        "officialOrder": 4
+      }
+    ],
+    "classification": {
+      "argomentoId": "la-strada",
+      "topicId": "definizioni-stradali",
+      "subtopicId": "strada",
+      "conceptIds": []
+    },
+    "explanation": {
+      "it": "",
+      "bn": "",
+      "decisiveWords": [],
+      "misconception": ""
+    },
+    "workflow": {
+      "status": "pending_review",
+      "confidence": 1,
+      "needsAdminApproval": true,
+      "conflictReasons": []
+    }
+  },
+  {
+    "questionId": "official-a0270499",
+    "exactKey": "La strada è qualsiasi area asfaltata, limitata lateralmente dagli attraversamenti pedonali",
+    "officialText": "La strada è qualsiasi area asfaltata, limitata lateralmente dagli attraversamenti pedonali",
+    "correctAnswer": false,
+    "sourceLinks": [
+      {
+        "sourceType": "PDF_SCREENSHOT",
+        "sourceName": "Listato A e B",
+        "sourceVersion": "2025-02-27",
+        "sourcePage": 10,
+        "argomentoId": "la-strada",
+        "topicId": "definizioni-stradali",
+        "subtopicId": "strada",
+        "officialChapter": "LA STRADA",
+        "officialTopic": "DEFINIZIONI STRADALI E DI TRAFFICO",
+        "officialBlockId": "11012",
+        "officialGroup": "FALSO",
+        "officialOrder": 5
+      }
+    ],
+    "classification": {
+      "argomentoId": "la-strada",
+      "topicId": "definizioni-stradali",
+      "subtopicId": "strada",
+      "conceptIds": []
+    },
+    "explanation": {
+      "it": "",
+      "bn": "",
+      "decisiveWords": [],
+      "misconception": ""
+    },
+    "workflow": {
+      "status": "pending_review",
+      "confidence": 1,
+      "needsAdminApproval": true,
+      "conflictReasons": []
+    }
+  }
+]

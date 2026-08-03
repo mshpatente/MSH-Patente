@@ -23,6 +23,11 @@ import {
 } from "../services/adminQuestionService.js";
 
 
+import {
+  openOfficialBlockImportPanel
+} from "../services/officialBlockImportPanel.js";
+
+
 /*
 |--------------------------------------------------------------------------
 | সাধারণ Helper Functions
@@ -2653,6 +2658,14 @@ resultCount.textContent =
               </button>
 
               <button
+                id="adminOfficialBlockImportButton"
+                class="btn btn-secondary"
+                type="button"
+              >
+                📄 Importa blocco
+              </button>
+
+              <button
                 id="adminHeaderNewQuestionButton"
                 class="btn btn-primary"
                 type="button"
@@ -2984,6 +2997,23 @@ resultCount.textContent =
         "click",
         () => {
           onBack?.();
+        }
+      );
+
+    document
+      .querySelector(
+        "#adminOfficialBlockImportButton"
+      )
+      ?.addEventListener(
+        "click",
+        () => {
+          openOfficialBlockImportPanel({
+            user,
+            argomenti,
+            topics,
+            subtopics:
+              officialSubtopics
+          });
         }
       );
 
